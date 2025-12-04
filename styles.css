@@ -8,7 +8,7 @@
   /* Typography */
   --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   --font-serif: 'Crimson Pro', Georgia, 'Times New Roman', serif;
-  
+
   /* Light Theme Colors */
   --bg-primary: #FDFBF7;
   --bg-secondary: #F5F2ED;
@@ -18,31 +18,31 @@
   --text-tertiary: #8A857D;
   --border-color: #E5E0D8;
   --border-light: #F0EBE4;
-  
+
   /* Accent Colors */
   --accent-primary: #8B5E3C;
   --accent-secondary: #A67C52;
   --accent-light: #D4B896;
   --accent-bg: rgba(139, 94, 60, 0.08);
-  
+
   /* Category Colors */
   --cat-poetry: #7C5E99;
   --cat-fiction: #5E7C99;
   --cat-essay: #5E9978;
   --cat-reflection: #99785E;
   --cat-other: #7A7A7A;
-  
+
   /* Semantic Colors */
   --success: #4A9B6B;
   --warning: #C4883A;
   --danger: #C45A5A;
-  
+
   /* Shadows */
   --shadow-sm: 0 1px 2px rgba(26, 24, 20, 0.05);
   --shadow-md: 0 4px 12px rgba(26, 24, 20, 0.08);
   --shadow-lg: 0 8px 24px rgba(26, 24, 20, 0.12);
   --shadow-xl: 0 16px 48px rgba(26, 24, 20, 0.16);
-  
+
   /* Spacing */
   --space-xs: 0.25rem;
   --space-sm: 0.5rem;
@@ -51,19 +51,19 @@
   --space-xl: 2rem;
   --space-2xl: 3rem;
   --space-3xl: 4rem;
-  
+
   /* Border Radius */
   --radius-sm: 4px;
   --radius-md: 8px;
   --radius-lg: 12px;
   --radius-xl: 16px;
   --radius-full: 9999px;
-  
+
   /* Transitions */
   --transition-fast: 150ms ease;
   --transition-base: 250ms ease;
   --transition-slow: 350ms ease;
-  
+
   /* Layout */
   --header-height: 64px;
   --max-width: 1200px;
@@ -80,12 +80,12 @@
   --text-tertiary: #6B6760;
   --border-color: #333028;
   --border-light: #252320;
-  
+
   --accent-primary: #D4A574;
   --accent-secondary: #C4956A;
   --accent-light: #8B6B4A;
   --accent-bg: rgba(212, 165, 116, 0.1);
-  
+
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.2);
   --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.3);
   --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.4);
@@ -96,7 +96,9 @@
    Base Styles
    ======================================== */
 
-*, *::before, *::after {
+*,
+*::before,
+*::after {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
@@ -230,11 +232,21 @@ body {
   color: var(--text-secondary);
 }
 
-.sun-icon { display: block; }
-.moon-icon { display: none; }
+.sun-icon {
+  display: block;
+}
 
-[data-theme="dark"] .sun-icon { display: none; }
-[data-theme="dark"] .moon-icon { display: block; }
+.moon-icon {
+  display: none;
+}
+
+[data-theme="dark"] .sun-icon {
+  display: none;
+}
+
+[data-theme="dark"] .moon-icon {
+  display: block;
+}
 
 /* ========================================
    Main Content
@@ -259,6 +271,7 @@ body {
     opacity: 0;
     transform: translateY(8px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -378,11 +391,25 @@ body {
   opacity: 1;
 }
 
-.writing-card[data-category="poetry"] { --card-accent: var(--cat-poetry); }
-.writing-card[data-category="fiction"] { --card-accent: var(--cat-fiction); }
-.writing-card[data-category="essay"] { --card-accent: var(--cat-essay); }
-.writing-card[data-category="reflection"] { --card-accent: var(--cat-reflection); }
-.writing-card[data-category="other"] { --card-accent: var(--cat-other); }
+.writing-card[data-category="poetry"] {
+  --card-accent: var(--cat-poetry);
+}
+
+.writing-card[data-category="fiction"] {
+  --card-accent: var(--cat-fiction);
+}
+
+.writing-card[data-category="essay"] {
+  --card-accent: var(--cat-essay);
+}
+
+.writing-card[data-category="reflection"] {
+  --card-accent: var(--cat-reflection);
+}
+
+.writing-card[data-category="other"] {
+  --card-accent: var(--cat-other);
+}
 
 .card-header {
   display: flex;
@@ -937,7 +964,8 @@ body {
   font-style: italic;
 }
 
-.prose ul, .prose ol {
+.prose ul,
+.prose ol {
   margin: 1em 0;
   padding-left: 1.5em;
 }
@@ -1197,55 +1225,55 @@ body {
   :root {
     --header-height: 56px;
   }
-  
+
   .header-container {
     padding: 0 var(--space-md);
   }
-  
+
   .logo-text {
     font-size: 1.25rem;
   }
-  
+
   .nav {
     display: none;
   }
-  
+
   .page-title {
     font-size: 2rem;
   }
-  
+
   .page-header {
     flex-direction: column;
     align-items: stretch;
   }
-  
+
   .page-header .btn {
     width: 100%;
     justify-content: center;
   }
-  
+
   .writings-grid {
     grid-template-columns: 1fr;
   }
-  
+
   .reading-title {
     font-size: 2rem;
   }
-  
+
   .prose {
     font-size: 1.1rem;
   }
-  
+
   .editor-body {
     flex-direction: column;
   }
-  
+
   .profile-header {
     flex-direction: column;
     align-items: center;
     text-align: center;
   }
-  
+
   .profile-stats {
     justify-content: center;
   }
@@ -1255,30 +1283,30 @@ body {
   .filters {
     flex-direction: column;
   }
-  
+
   .filter-group {
     width: 100%;
     overflow-x: auto;
     padding-bottom: var(--space-sm);
   }
-  
+
   .filter-btn {
     white-space: nowrap;
   }
-  
+
   .meta-row {
     flex-direction: column;
     gap: var(--space-md);
   }
-  
+
   .toggle-group {
     flex-direction: column;
   }
-  
+
   .toggle-btn:first-child {
     border-radius: var(--radius-md) var(--radius-md) 0 0;
   }
-  
+
   .toggle-btn:last-child {
     border-radius: 0 0 var(--radius-md) var(--radius-md);
   }
@@ -1286,6 +1314,7 @@ body {
 
 /* Print Styles */
 @media print {
+
   .header,
   .back-btn,
   .reading-footer,
@@ -1293,13 +1322,91 @@ body {
   .modal-overlay {
     display: none !important;
   }
-  
+
   .main {
     padding-top: 0;
   }
-  
+
   .reading-container {
     max-width: 100%;
     padding: 0;
   }
+}
+
+/* ========================================
+   Admin Authentication
+   ======================================== */
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.admin-btn {
+  width: 40px;
+  height: 40px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--transition-fast);
+}
+
+.admin-btn:hover {
+  background: var(--bg-tertiary);
+}
+
+.admin-btn svg {
+  width: 18px;
+  height: 18px;
+  color: var(--text-secondary);
+}
+
+.admin-btn.logged-in {
+  background: var(--success);
+  border-color: var(--success);
+}
+
+.admin-btn.logged-in svg {
+  color: white;
+}
+
+.admin-btn.logged-in:hover {
+  background: #3d8259;
+}
+
+/* Login Modal */
+.password-input {
+  width: 100%;
+  padding: var(--space-md);
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  font-family: var(--font-sans);
+  font-size: 1rem;
+  color: var(--text-primary);
+  margin-bottom: var(--space-lg);
+  outline: none;
+  transition: border-color var(--transition-fast);
+}
+
+.password-input:focus {
+  border-color: var(--accent-primary);
+}
+
+.password-input::placeholder {
+  color: var(--text-tertiary);
+}
+
+#loginForm {
+  margin-top: var(--space-md);
+}
+
+/* Admin-only elements are hidden by default */
+.admin-only {
+  display: none;
 }

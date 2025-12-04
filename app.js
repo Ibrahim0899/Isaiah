@@ -10,7 +10,8 @@
 const STORAGE_KEYS = {
   writings: 'isaiah_writings',
   profile: 'isaiah_profile',
-  theme: 'isaiah_theme'
+  theme: 'isaiah_theme',
+  adminSession: 'isaiah_admin_session'
 };
 
 const CATEGORIES = {
@@ -21,6 +22,9 @@ const CATEGORIES = {
   other: 'Autre'
 };
 
+// Admin password - change this to your secure password
+const ADMIN_PASSWORD = 'Isaiah2024!';
+
 // ========================================
 // State Management
 // ========================================
@@ -28,7 +32,7 @@ const CATEGORIES = {
 let state = {
   writings: [],
   profile: {
-    name: '',
+    name: 'Isaiah',
     bio: ''
   },
   currentWritingId: null,
@@ -36,6 +40,52 @@ let state = {
   filters: {
     category: 'all',
     visibility: 'all'
+  },
+  isAdmin: false
+};
+
+// ========================================
+// Admin Authentication
+// ========================================
+
+const Admin = {
+  // Check if user is authenticated as admin
+  isAuthenticated() {
+    const session = Storage.get(STORAGE_KEYS.adminSession);
+    if (session && session.expires > Date.now()) {
+      state.isAdmin = true;
+      return true;
+    }
+    state.isAdmin = false;
+    return false;
+  },
+
+  // Login with password
+  login(password) {
+    if (password === ADMIN_PASSWORD) {
+      // Session expires in 24 hours
+      const session = {
+        authenticated: true,
+        expires: Date.now() + (24 * 60 * 60 * 1000)
+      };
+      Storage.set(STORAGE_KEYS.adminSession, session);
+      state.isAdmin = true;
+      UI.updateAdminUI();
+      UI.toast('Connecté en tant qu\'admin ✓', 'success');
+      UI.hideLoginModal();
+      return true;
+    }
+    UI.toast('Mot de passe incorrect', 'error');
+    return false;
+  },
+
+  // Logout
+  logout() {
+    localStorage.removeItem(STORAGE_KEYS.adminSession);
+    state.isAdmin = false;
+    UI.updateAdminUI();
+    UI.navigateTo('home');
+    UI.toast('Déconnecté', 'success');
   }
 };
 
@@ -66,12 +116,15 @@ const Storage = {
 
   loadAll() {
     state.writings = Storage.get(STORAGE_KEYS.writings) || [];
-    state.profile = Storage.get(STORAGE_KEYS.profile) || { name: '', bio: '' };
-    
+    state.profile = Storage.get(STORAGE_KEYS.profile) || { name: 'Isaiah', bio: '' };
+
     const savedTheme = Storage.get(STORAGE_KEYS.theme);
     if (savedTheme) {
       document.documentElement.setAttribute('data-theme', savedTheme);
     }
+
+    // Check admin session
+    Admin.isAuthenticated();
   },
 
   saveWritings() {
@@ -93,6 +146,8 @@ const Storage = {
 
 const Writings = {
   create(data) {
+    if (!state.isAdmin) return null;
+
     const writing = {
       id: crypto.randomUUID(),
       title: data.title || 'Sans titre',
@@ -104,16 +159,18 @@ const Writings = {
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
     };
-    
+
     state.writings.unshift(writing);
     Storage.saveWritings();
     return writing;
   },
 
   update(id, data) {
+    if (!state.isAdmin) return null;
+
     const index = state.writings.findIndex(w => w.id === id);
     if (index === -1) return null;
-    
+
     const writing = state.writings[index];
     const updated = {
       ...writing,
@@ -121,16 +178,18 @@ const Writings = {
       excerpt: this.createExcerpt(data.content || writing.content),
       updatedAt: new Date().toISOString()
     };
-    
+
     state.writings[index] = updated;
     Storage.saveWritings();
     return updated;
   },
 
   delete(id) {
+    if (!state.isAdmin) return false;
+
     const index = state.writings.findIndex(w => w.id === id);
     if (index === -1) return false;
-    
+
     state.writings.splice(index, 1);
     Storage.saveWritings();
     return true;
@@ -141,9 +200,18 @@ const Writings = {
   },
 
   getFiltered() {
-    return state.writings.filter(w => {
+    let writings = state.writings;
+
+    // Non-admin users only see public writings
+    if (!state.isAdmin) {
+      writings = writings.filter(w => w.visibility === 'public');
+    }
+
+    return writings.filter(w => {
       const categoryMatch = state.filters.category === 'all' || w.category === state.filters.category;
-      const visibilityMatch = state.filters.visibility === 'all' || w.visibility === state.filters.visibility;
+      const visibilityMatch = state.isAdmin ?
+        (state.filters.visibility === 'all' || w.visibility === state.filters.visibility) :
+        true; // Non-admin always sees only public
       return categoryMatch && visibilityMatch;
     });
   },
@@ -153,7 +221,6 @@ const Writings = {
   },
 
   createExcerpt(content, length = 150) {
-    // Remove markdown syntax for excerpt
     const plain = content
       .replace(/#{1,6}\s/g, '')
       .replace(/\*\*([^*]+)\*\*/g, '$1')
@@ -161,7 +228,7 @@ const Writings = {
       .replace(/>\s/g, '')
       .replace(/[-*]\s/g, '')
       .trim();
-    
+
     return plain.length > length ? plain.substring(0, length) + '...' : plain;
   }
 };
@@ -173,46 +240,32 @@ const Writings = {
 const Markdown = {
   parse(text) {
     if (!text) return '';
-    
+
     let html = text
-      // Escape HTML
       .replace(/&/g, '&amp;')
       .replace(/</g, '&lt;')
       .replace(/>/g, '&gt;')
-      // Headers
       .replace(/^### (.+)$/gm, '<h3>$1</h3>')
       .replace(/^## (.+)$/gm, '<h2>$1</h2>')
       .replace(/^# (.+)$/gm, '<h1>$1</h1>')
-      // Bold and Italic
       .replace(/\*\*\*(.+?)\*\*\*/g, '<strong><em>$1</em></strong>')
       .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
       .replace(/\*(.+?)\*/g, '<em>$1</em>')
-      // Blockquotes
       .replace(/^> (.+)$/gm, '<blockquote>$1</blockquote>')
-      // Lists
       .replace(/^- (.+)$/gm, '<li>$1</li>')
       .replace(/^\* (.+)$/gm, '<li>$1</li>')
-      // Horizontal rules
       .replace(/^---$/gm, '<hr>')
-      // Line breaks and paragraphs
       .replace(/\n\n/g, '</p><p>')
       .replace(/\n/g, '<br>');
-    
-    // Wrap in paragraph
+
     html = '<p>' + html + '</p>';
-    
-    // Clean up empty paragraphs
     html = html.replace(/<p><\/p>/g, '');
-    
-    // Wrap consecutive li elements in ul
     html = html.replace(/(<li>.*?<\/li>)+/gs, match => `<ul>${match}</ul>`);
-    
-    // Merge consecutive blockquotes
     html = html.replace(/(<blockquote>.*?<\/blockquote>)+/gs, match => {
       const content = match.replace(/<\/?blockquote>/g, '<br>').replace(/^<br>/, '').replace(/<br>$/, '');
       return `<blockquote>${content}</blockquote>`;
     });
-    
+
     return html;
   }
 };
@@ -222,12 +275,52 @@ const Markdown = {
 // ========================================
 
 const UI = {
+  // Update UI based on admin status
+  updateAdminUI() {
+    const adminElements = document.querySelectorAll('.admin-only');
+    const visitorElements = document.querySelectorAll('.visitor-only');
+    const adminBtn = document.getElementById('adminBtn');
+
+    if (state.isAdmin) {
+      adminElements.forEach(el => el.style.display = '');
+      visitorElements.forEach(el => el.style.display = 'none');
+      adminBtn.innerHTML = `
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+          <polyline points="16 17 21 12 16 7"/>
+          <line x1="21" y1="12" x2="9" y2="12"/>
+        </svg>
+      `;
+      adminBtn.title = 'Déconnexion';
+      adminBtn.classList.add('logged-in');
+    } else {
+      adminElements.forEach(el => el.style.display = 'none');
+      visitorElements.forEach(el => el.style.display = '');
+      adminBtn.innerHTML = `
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+          <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+        </svg>
+      `;
+      adminBtn.title = 'Connexion Admin';
+      adminBtn.classList.remove('logged-in');
+    }
+
+    // Update filters visibility
+    const visibilityFilters = document.querySelector('.filter-group[data-admin-only]');
+    if (visibilityFilters) {
+      visibilityFilters.style.display = state.isAdmin ? 'flex' : 'none';
+    }
+
+    this.renderWritingsGrid();
+  },
+
   // Toast Notifications
   toast(message, type = 'default') {
     const toast = document.getElementById('toast');
     toast.textContent = message;
     toast.className = `toast ${type} show`;
-    
+
     setTimeout(() => {
       toast.classList.remove('show');
     }, 3000);
@@ -235,21 +328,23 @@ const UI = {
 
   // Navigation
   navigateTo(page) {
-    // Hide all pages
+    // Protect admin-only pages
+    if ((page === 'write' || page === 'profile') && !state.isAdmin) {
+      this.showLoginModal();
+      return;
+    }
+
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-    
-    // Show target page
+
     const targetPage = document.getElementById(`page-${page}`);
     if (targetPage) {
       targetPage.classList.add('active');
       state.currentPage = page;
-      
-      // Update nav links
+
       document.querySelectorAll('.nav-link').forEach(link => {
         link.classList.toggle('active', link.dataset.page === page);
       });
-      
-      // Page-specific actions
+
       if (page === 'home') {
         this.renderWritingsGrid();
       } else if (page === 'profile') {
@@ -263,22 +358,37 @@ const UI = {
     const grid = document.getElementById('writingsGrid');
     const emptyState = document.getElementById('emptyState');
     const writings = Writings.getFiltered();
-    
+
+    // Update empty state message based on admin status
+    const emptyTitle = emptyState.querySelector('h2');
+    const emptyText = emptyState.querySelector('p');
+    const emptyBtn = emptyState.querySelector('button');
+
+    if (state.isAdmin) {
+      emptyTitle.textContent = 'Commencez à écrire';
+      emptyText.textContent = 'Votre bibliothèque est vide. Créez votre premier écrit pour commencer votre voyage.';
+      emptyBtn.style.display = '';
+    } else {
+      emptyTitle.textContent = 'Aucun écrit pour le moment';
+      emptyText.textContent = 'L\'auteur n\'a pas encore publié d\'écrits. Revenez bientôt !';
+      emptyBtn.style.display = 'none';
+    }
+
     if (writings.length === 0) {
       grid.innerHTML = '';
       grid.style.display = 'none';
       emptyState.style.display = 'block';
       return;
     }
-    
+
     grid.style.display = 'grid';
     emptyState.style.display = 'none';
-    
+
     grid.innerHTML = writings.map(writing => `
       <article class="writing-card" data-id="${writing.id}" data-category="${writing.category}">
         <div class="card-header">
           <span class="card-category">${CATEGORIES[writing.category]}</span>
-          <span class="card-visibility">${writing.visibility === 'public' ? '🌍' : '🔒'}</span>
+          ${state.isAdmin ? `<span class="card-visibility">${writing.visibility === 'public' ? '🌍' : '🔒'}</span>` : ''}
         </div>
         <h3 class="card-title">${this.escapeHtml(writing.title)}</h3>
         <p class="card-excerpt">${this.escapeHtml(writing.excerpt)}</p>
@@ -290,8 +400,7 @@ const UI = {
         </div>
       </article>
     `).join('');
-    
-    // Add click handlers
+
     grid.querySelectorAll('.writing-card').forEach(card => {
       card.addEventListener('click', () => {
         this.openReading(card.dataset.id);
@@ -303,43 +412,55 @@ const UI = {
   openReading(id) {
     const writing = Writings.get(id);
     if (!writing) return;
-    
+
+    // Non-admin can only view public writings
+    if (!state.isAdmin && writing.visibility !== 'public') {
+      this.toast('Cet écrit est privé', 'error');
+      return;
+    }
+
     state.currentWritingId = id;
-    
+
     document.getElementById('readCategory').textContent = CATEGORIES[writing.category];
     document.getElementById('readDate').textContent = this.formatDate(writing.createdAt);
     document.getElementById('readVisibility').textContent = writing.visibility === 'public' ? '🌍 Public' : '🔒 Privé';
+    document.getElementById('readVisibility').style.display = state.isAdmin ? '' : 'none';
     document.getElementById('readTitle').textContent = writing.title;
-    document.getElementById('readTags').innerHTML = writing.tags.map(tag => 
+    document.getElementById('readTags').innerHTML = writing.tags.map(tag =>
       `<span class="reading-tag">#${this.escapeHtml(tag)}</span>`
     ).join('');
     document.getElementById('readContent').innerHTML = Markdown.parse(writing.content);
-    
+
+    // Show/hide admin controls
+    const readingFooter = document.querySelector('.reading-footer');
+    readingFooter.style.display = state.isAdmin ? 'flex' : 'none';
+
     this.navigateTo('read');
   },
 
   // Open editor for new or existing writing
   openEditor(id = null) {
+    if (!state.isAdmin) {
+      this.showLoginModal();
+      return;
+    }
+
     state.currentWritingId = id;
     const writing = id ? Writings.get(id) : null;
-    
-    // Reset form
+
     document.getElementById('writingTitle').value = writing?.title || '';
     document.getElementById('writingContent').value = writing?.content || '';
     document.getElementById('writingCategory').value = writing?.category || 'poetry';
-    
-    // Visibility toggle
+
     document.querySelectorAll('.toggle-btn[data-visibility]').forEach(btn => {
       btn.classList.toggle('active', btn.dataset.visibility === (writing?.visibility || 'private'));
     });
-    
-    // Tags
+
     this.renderTags(writing?.tags || []);
-    
-    // Reset preview
+
     document.getElementById('editorPane').classList.remove('hidden');
     document.getElementById('previewPane').classList.add('hidden');
-    
+
     this.navigateTo('write');
   },
 
@@ -352,8 +473,7 @@ const UI = {
         <button class="tag-remove" data-tag="${this.escapeHtml(tag)}">&times;</button>
       </span>
     `).join('');
-    
-    // Add remove handlers
+
     tagsList.querySelectorAll('.tag-remove').forEach(btn => {
       btn.addEventListener('click', () => {
         const currentTags = this.getCurrentTags();
@@ -364,24 +484,29 @@ const UI = {
   },
 
   getCurrentTags() {
-    return Array.from(document.querySelectorAll('#tagsList .tag')).map(tag => 
+    return Array.from(document.querySelectorAll('#tagsList .tag')).map(tag =>
       tag.textContent.trim().replace('×', '').trim()
     );
   },
 
   // Save current writing
   saveWriting() {
+    if (!state.isAdmin) {
+      this.toast('Accès non autorisé', 'error');
+      return;
+    }
+
     const title = document.getElementById('writingTitle').value.trim();
     const content = document.getElementById('writingContent').value;
     const category = document.getElementById('writingCategory').value;
     const visibility = document.querySelector('.toggle-btn[data-visibility].active')?.dataset.visibility || 'private';
     const tags = this.getCurrentTags();
-    
+
     if (!title && !content) {
       this.toast('Veuillez ajouter un titre ou du contenu', 'error');
       return;
     }
-    
+
     const data = {
       title: title || 'Sans titre',
       content,
@@ -389,7 +514,7 @@ const UI = {
       visibility,
       tags
     };
-    
+
     if (state.currentWritingId) {
       Writings.update(state.currentWritingId, data);
       this.toast('Écrit mis à jour ✓', 'success');
@@ -398,12 +523,17 @@ const UI = {
       state.currentWritingId = writing.id;
       this.toast('Écrit sauvegardé ✓', 'success');
     }
-    
+
     this.navigateTo('home');
   },
 
   // Delete writing
   deleteWriting(id) {
+    if (!state.isAdmin) {
+      this.toast('Accès non autorisé', 'error');
+      return;
+    }
+
     if (Writings.delete(id)) {
       this.toast('Écrit supprimé', 'success');
       this.navigateTo('home');
@@ -412,27 +542,29 @@ const UI = {
 
   // Render profile page
   renderProfile() {
+    if (!state.isAdmin) {
+      this.navigateTo('home');
+      return;
+    }
+
     document.getElementById('profileName').value = state.profile.name;
     document.getElementById('profileBio').value = state.profile.bio;
-    
-    // Update avatar initial
+
     const initial = (state.profile.name || 'I').charAt(0).toUpperCase();
     document.getElementById('profileAvatar').textContent = initial;
-    
-    // Stats
+
     const total = state.writings.length;
     const publicCount = state.writings.filter(w => w.visibility === 'public').length;
     const privateCount = total - publicCount;
-    
+
     document.getElementById('statTotal').textContent = total;
     document.getElementById('statPublic').textContent = publicCount;
     document.getElementById('statPrivate').textContent = privateCount;
-    
-    // Public writings
+
     const publicWritings = Writings.getPublic();
     const publicGrid = document.getElementById('publicWritingsGrid');
     const noPublic = document.getElementById('noPublicWritings');
-    
+
     if (publicWritings.length === 0) {
       publicGrid.innerHTML = '';
       publicGrid.style.display = 'none';
@@ -440,7 +572,7 @@ const UI = {
     } else {
       publicGrid.style.display = 'grid';
       noPublic.style.display = 'none';
-      
+
       publicGrid.innerHTML = publicWritings.map(writing => `
         <article class="writing-card" data-id="${writing.id}" data-category="${writing.category}">
           <div class="card-header">
@@ -454,7 +586,7 @@ const UI = {
           </div>
         </article>
       `).join('');
-      
+
       publicGrid.querySelectorAll('.writing-card').forEach(card => {
         card.addEventListener('click', () => {
           this.openReading(card.dataset.id);
@@ -464,14 +596,15 @@ const UI = {
   },
 
   saveProfile() {
+    if (!state.isAdmin) return;
+
     state.profile.name = document.getElementById('profileName').value.trim();
     state.profile.bio = document.getElementById('profileBio').value.trim();
     Storage.saveProfile();
-    
-    // Update avatar
+
     const initial = (state.profile.name || 'I').charAt(0).toUpperCase();
     document.getElementById('profileAvatar').textContent = initial;
-    
+
     this.toast('Profil sauvegardé ✓', 'success');
   },
 
@@ -507,6 +640,16 @@ const UI = {
 
   hideDeleteModal() {
     document.getElementById('deleteModal').classList.remove('show');
+  },
+
+  showLoginModal() {
+    document.getElementById('loginModal').classList.add('show');
+    document.getElementById('adminPassword').value = '';
+    document.getElementById('adminPassword').focus();
+  },
+
+  hideLoginModal() {
+    document.getElementById('loginModal').classList.remove('show');
   }
 };
 
@@ -521,10 +664,9 @@ const Editor = {
     const end = textarea.selectionEnd;
     const selectedText = textarea.value.substring(start, end);
     const newText = before + selectedText + after;
-    
+
     textarea.value = textarea.value.substring(0, start) + newText + textarea.value.substring(end);
-    
-    // Position cursor
+
     const newPosition = start + before.length + selectedText.length + after.length;
     textarea.setSelectionRange(newPosition, newPosition);
     textarea.focus();
@@ -541,11 +683,10 @@ const Editor = {
   },
 
   togglePreview() {
-    const editorPane = document.getElementById('editorPane');
     const previewPane = document.getElementById('previewPane');
     const previewContent = document.getElementById('previewContent');
     const content = document.getElementById('writingContent').value;
-    
+
     if (previewPane.classList.contains('hidden')) {
       previewContent.innerHTML = Markdown.parse(content);
       previewPane.classList.remove('hidden');
@@ -565,7 +706,7 @@ function initializeEventListeners() {
     el.addEventListener('click', (e) => {
       e.preventDefault();
       const page = el.dataset.page;
-      
+
       if (page === 'write') {
         UI.openEditor();
       } else {
@@ -577,6 +718,26 @@ function initializeEventListeners() {
   // Theme toggle
   document.getElementById('themeToggle').addEventListener('click', () => {
     UI.toggleTheme();
+  });
+
+  // Admin button
+  document.getElementById('adminBtn').addEventListener('click', () => {
+    if (state.isAdmin) {
+      Admin.logout();
+    } else {
+      UI.showLoginModal();
+    }
+  });
+
+  // Login form
+  document.getElementById('loginForm').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const password = document.getElementById('adminPassword').value;
+    Admin.login(password);
+  });
+
+  document.getElementById('cancelLogin').addEventListener('click', () => {
+    UI.hideLoginModal();
   });
 
   // Filter buttons - Category
@@ -609,20 +770,22 @@ function initializeEventListeners() {
 
   // Tags input
   const tagsInput = document.getElementById('tagsInput');
-  tagsInput.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      const tag = tagsInput.value.trim().toLowerCase();
-      if (tag && tag.length <= 20) {
-        const currentTags = UI.getCurrentTags();
-        if (!currentTags.includes(tag) && currentTags.length < 5) {
-          currentTags.push(tag);
-          UI.renderTags(currentTags);
+  if (tagsInput) {
+    tagsInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        const tag = tagsInput.value.trim().toLowerCase();
+        if (tag && tag.length <= 20) {
+          const currentTags = UI.getCurrentTags();
+          if (!currentTags.includes(tag) && currentTags.length < 5) {
+            currentTags.push(tag);
+            UI.renderTags(currentTags);
+          }
         }
+        tagsInput.value = '';
       }
-      tagsInput.value = '';
-    }
-  });
+    });
+  }
 
   // Toolbar buttons
   document.querySelectorAll('.toolbar-btn[data-action]').forEach(btn => {
@@ -635,40 +798,55 @@ function initializeEventListeners() {
   });
 
   // Keyboard shortcuts in editor
-  document.getElementById('writingContent').addEventListener('keydown', (e) => {
-    if (e.ctrlKey || e.metaKey) {
-      if (e.key === 'b') {
-        e.preventDefault();
-        Editor.actions.bold();
-      } else if (e.key === 'i') {
-        e.preventDefault();
-        Editor.actions.italic();
-      } else if (e.key === 's') {
-        e.preventDefault();
-        UI.saveWriting();
+  const writingContent = document.getElementById('writingContent');
+  if (writingContent) {
+    writingContent.addEventListener('keydown', (e) => {
+      if (e.ctrlKey || e.metaKey) {
+        if (e.key === 'b') {
+          e.preventDefault();
+          Editor.actions.bold();
+        } else if (e.key === 'i') {
+          e.preventDefault();
+          Editor.actions.italic();
+        } else if (e.key === 's') {
+          e.preventDefault();
+          UI.saveWriting();
+        }
       }
-    }
-  });
+    });
+  }
 
   // Preview toggle
-  document.getElementById('previewToggle').addEventListener('click', () => {
-    Editor.togglePreview();
-  });
+  const previewToggle = document.getElementById('previewToggle');
+  if (previewToggle) {
+    previewToggle.addEventListener('click', () => {
+      Editor.togglePreview();
+    });
+  }
 
   // Save writing
-  document.getElementById('saveWriting').addEventListener('click', () => {
-    UI.saveWriting();
-  });
+  const saveWriting = document.getElementById('saveWriting');
+  if (saveWriting) {
+    saveWriting.addEventListener('click', () => {
+      UI.saveWriting();
+    });
+  }
 
   // Edit from reading view
-  document.getElementById('editFromRead').addEventListener('click', () => {
-    UI.openEditor(state.currentWritingId);
-  });
+  const editFromRead = document.getElementById('editFromRead');
+  if (editFromRead) {
+    editFromRead.addEventListener('click', () => {
+      UI.openEditor(state.currentWritingId);
+    });
+  }
 
   // Delete from reading view
-  document.getElementById('deleteFromRead').addEventListener('click', () => {
-    UI.showDeleteModal();
-  });
+  const deleteFromRead = document.getElementById('deleteFromRead');
+  if (deleteFromRead) {
+    deleteFromRead.addEventListener('click', () => {
+      UI.showDeleteModal();
+    });
+  }
 
   // Delete modal
   document.getElementById('cancelDelete').addEventListener('click', () => {
@@ -687,15 +865,25 @@ function initializeEventListeners() {
     }
   });
 
-  // Save profile
-  document.getElementById('saveProfile').addEventListener('click', () => {
-    UI.saveProfile();
+  document.getElementById('loginModal').addEventListener('click', (e) => {
+    if (e.target.id === 'loginModal') {
+      UI.hideLoginModal();
+    }
   });
+
+  // Save profile
+  const saveProfile = document.getElementById('saveProfile');
+  if (saveProfile) {
+    saveProfile.addEventListener('click', () => {
+      UI.saveProfile();
+    });
+  }
 
   // Close modal with Escape key
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
       UI.hideDeleteModal();
+      UI.hideLoginModal();
     }
   });
 }
@@ -707,10 +895,14 @@ function initializeEventListeners() {
 function init() {
   Storage.loadAll();
   initializeEventListeners();
+  UI.updateAdminUI();
   UI.renderWritingsGrid();
-  
+
   // Set default filter
-  document.querySelector('.filter-btn[data-visibility="all"]').classList.add('active');
+  const defaultFilter = document.querySelector('.filter-btn[data-visibility="all"]');
+  if (defaultFilter) {
+    defaultFilter.classList.add('active');
+  }
 }
 
 // Start the app
