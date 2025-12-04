@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Isaiah — Dis-le. Guéris.</title>
+    <meta name="description" content="Isaiah - Une plateforme épurée pour partager vos écrits personnels. Poésie, fiction, essais et réflexions.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-container">
+            <a href="#" class="logo" data-page="home">
+                <svg class="logo-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 19l7-7 3 3-7 7-3-3z"/>
+                    <path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/>
+                    <path d="M2 2l7.586 7.586"/>
+                    <circle cx="11" cy="11" r="2"/>
+                </svg>
+                <span class="logo-text">Isaiah</span>
+            </a>
+            <nav class="nav">
+                <button class="nav-link" data-page="home">Bibliothèque</button>
+                <button class="nav-link" data-page="write">Écrire</button>
+                <button class="nav-link" data-page="profile">Profil</button>
+            </nav>
+            <button class="theme-toggle" id="themeToggle" aria-label="Changer le thème">
+                <svg class="sun-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="5"/>
+                    <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
+                </svg>
+                <svg class="moon-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+                </svg>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main">
+        <!-- Home Page -->
+        <section id="page-home" class="page active">
+            <div class="page-header">
+                <div>
+                    <h1 class="page-title">Ma Bibliothèque</h1>
+                    <p class="page-subtitle">Tous vos écrits, en un seul lieu</p>
+                </div>
+                <button class="btn btn-primary" data-page="write">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 5v14M5 12h14"/>
+                    </svg>
+                    Nouvel Écrit
+                </button>
+            </div>
+            
+            <!-- Filters -->
+            <div class="filters">
+                <div class="filter-group">
+                    <button class="filter-btn active" data-filter="all">Tous</button>
+                    <button class="filter-btn" data-filter="poetry">Poésie</button>
+                    <button class="filter-btn" data-filter="fiction">Fiction</button>
+                    <button class="filter-btn" data-filter="essay">Essai</button>
+                    <button class="filter-btn" data-filter="reflection">Réflexion</button>
+                </div>
+                <div class="filter-group">
+                    <button class="filter-btn" data-visibility="all">📖 Tous</button>
+                    <button class="filter-btn" data-visibility="public">🌍 Publics</button>
+                    <button class="filter-btn" data-visibility="private">🔒 Privés</button>
+                </div>
+            </div>
+
+            <!-- Writings Grid -->
+            <div class="writings-grid" id="writingsGrid">
+                <!-- Writings will be inserted here -->
+            </div>
+
+            <!-- Empty State -->
+            <div class="empty-state" id="emptyState">
+                <div class="empty-icon">✍️</div>
+                <h2>Commencez à écrire</h2>
+                <p>Votre bibliothèque est vide. Créez votre premier écrit pour commencer votre voyage.</p>
+                <button class="btn btn-primary" data-page="write">Créer mon premier écrit</button>
+            </div>
+        </section>
+
+        <!-- Write/Edit Page -->
+        <section id="page-write" class="page">
+            <div class="editor-container">
+                <div class="editor-header">
+                    <button class="btn btn-ghost back-btn" data-page="home">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M19 12H5M12 19l-7-7 7-7"/>
+                        </svg>
+                        Retour
+                    </button>
+                    <div class="editor-actions">
+                        <button class="btn btn-ghost" id="previewToggle">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                                <circle cx="12" cy="12" r="3"/>
+                            </svg>
+                            Aperçu
+                        </button>
+                        <button class="btn btn-primary" id="saveWriting">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+                                <polyline points="17 21 17 13 7 13 7 21"/>
+                                <polyline points="7 3 7 8 15 8"/>
+                            </svg>
+                            Sauvegarder
+                        </button>
+                    </div>
+                </div>
+
+                <div class="editor-meta">
+                    <input type="text" id="writingTitle" class="title-input" placeholder="Titre de votre écrit..." maxlength="100">
+                    
+                    <div class="meta-row">
+                        <div class="meta-field">
+                            <label>Catégorie</label>
+                            <select id="writingCategory" class="select-input">
+                                <option value="poetry">Poésie</option>
+                                <option value="fiction">Fiction</option>
+                                <option value="essay">Essai</option>
+                                <option value="reflection">Réflexion</option>
+                                <option value="other">Autre</option>
+                            </select>
+                        </div>
+                        <div class="meta-field">
+                            <label>Visibilité</label>
+                            <div class="toggle-group">
+                                <button class="toggle-btn active" data-visibility="private">
+                                    🔒 Privé
+                                </button>
+                                <button class="toggle-btn" data-visibility="public">
+                                    🌍 Public
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="meta-field tags-field">
+                        <label>Tags</label>
+                        <div class="tags-input-container">
+                            <div class="tags-list" id="tagsList"></div>
+                            <input type="text" id="tagsInput" class="tags-input" placeholder="Ajouter un tag (Entrée pour valider)">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="editor-body">
+                    <div class="editor-pane" id="editorPane">
+                        <div class="toolbar">
+                            <button class="toolbar-btn" data-action="bold" title="Gras (Ctrl+B)"><strong>G</strong></button>
+                            <button class="toolbar-btn" data-action="italic" title="Italique (Ctrl+I)"><em>I</em></button>
+                            <span class="toolbar-divider"></span>
+                            <button class="toolbar-btn" data-action="h1" title="Titre 1">H1</button>
+                            <button class="toolbar-btn" data-action="h2" title="Titre 2">H2</button>
+                            <button class="toolbar-btn" data-action="h3" title="Titre 3">H3</button>
+                            <span class="toolbar-divider"></span>
+                            <button class="toolbar-btn" data-action="quote" title="Citation">❝</button>
+                            <button class="toolbar-btn" data-action="list" title="Liste">•</button>
+                        </div>
+                        <textarea id="writingContent" class="editor-textarea" placeholder="Commencez à écrire... (Markdown supporté)"></textarea>
+                    </div>
+                    <div class="preview-pane hidden" id="previewPane">
+                        <div class="preview-content" id="previewContent"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Read Page -->
+        <section id="page-read" class="page">
+            <article class="reading-container">
+                <button class="btn btn-ghost back-btn" data-page="home">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M19 12H5M12 19l-7-7 7-7"/>
+                    </svg>
+                    Retour à la bibliothèque
+                </button>
+                
+                <header class="reading-header">
+                    <div class="reading-meta">
+                        <span class="reading-category" id="readCategory"></span>
+                        <span class="reading-date" id="readDate"></span>
+                        <span class="reading-visibility" id="readVisibility"></span>
+                    </div>
+                    <h1 class="reading-title" id="readTitle"></h1>
+                    <div class="reading-tags" id="readTags"></div>
+                </header>
+                
+                <div class="reading-content prose" id="readContent"></div>
+                
+                <footer class="reading-footer">
+                    <button class="btn btn-ghost" id="editFromRead">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                        </svg>
+                        Modifier
+                    </button>
+                    <button class="btn btn-ghost btn-danger" id="deleteFromRead">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="3 6 5 6 21 6"/>
+                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                        </svg>
+                        Supprimer
+                    </button>
+                </footer>
+            </article>
+        </section>
+
+        <!-- Profile Page -->
+        <section id="page-profile" class="page">
+            <div class="profile-container">
+                <div class="profile-header">
+                    <div class="profile-avatar" id="profileAvatar">I</div>
+                    <div class="profile-info">
+                        <input type="text" class="profile-name" id="profileName" placeholder="Votre nom" maxlength="50">
+                        <textarea class="profile-bio" id="profileBio" placeholder="Écrivez votre biographie..." maxlength="500"></textarea>
+                        <button class="btn btn-primary btn-sm" id="saveProfile">Sauvegarder le profil</button>
+                    </div>
+                </div>
+
+                <div class="profile-stats">
+                    <div class="stat">
+                        <span class="stat-value" id="statTotal">0</span>
+                        <span class="stat-label">Écrits</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-value" id="statPublic">0</span>
+                        <span class="stat-label">Publics</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-value" id="statPrivate">0</span>
+                        <span class="stat-label">Privés</span>
+                    </div>
+                </div>
+
+                <div class="profile-section">
+                    <h2>Écrits Publics</h2>
+                    <div class="writings-grid" id="publicWritingsGrid"></div>
+                    <div class="empty-state small" id="noPublicWritings">
+                        <p>Aucun écrit public pour le moment.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Toast Notification -->
+    <div class="toast" id="toast"></div>
+
+    <!-- Delete Confirmation Modal -->
+    <div class="modal-overlay" id="deleteModal">
+        <div class="modal">
+            <h3>Supprimer cet écrit ?</h3>
+            <p>Cette action est irréversible. L'écrit sera définitivement supprimé.</p>
+            <div class="modal-actions">
+                <button class="btn btn-ghost" id="cancelDelete">Annuler</button>
+                <button class="btn btn-danger" id="confirmDelete">Supprimer</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
