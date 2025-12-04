@@ -23,7 +23,7 @@ const CATEGORIES = {
 };
 
 // Admin password - change this to your secure password
-const ADMIN_PASSWORD = 'NarLoSidy7112!';
+const ADMIN_PASSWORD = 'NarLoSidy7112';
 
 // ========================================
 // State Management
