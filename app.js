@@ -85,12 +85,9 @@ const Supabase = {
     }
   },
 
-  async getWritings(publicOnly = false) {
-    let query = 'writings?order=created_at.desc';
-    if (publicOnly) {
-      query += '&visibility=eq.public';
-    }
-    return await this.fetch(query);
+  async getWritings() {
+    // RLS handles visibility - anonymous users only see public, admin sees all
+    return await this.fetch('writings?order=created_at.desc');
   },
 
   async getWriting(id) {
@@ -216,8 +213,8 @@ const Writings = {
   async loadAll() {
     try {
       state.isLoading = true;
-      // Load all writings if admin, only public if visitor
-      state.writings = await Supabase.getWritings(!state.isAdmin);
+      // RLS handles visibility filtering at database level
+      state.writings = await Supabase.getWritings();
       state.isLoading = false;
       return state.writings;
     } catch (e) {
