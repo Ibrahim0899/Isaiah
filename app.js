@@ -1,14 +1,20 @@
 /* ========================================
    Isaiah Application
-   Personal Writing Platform
+   Personal Writing Platform with Supabase
    ======================================== */
+
+// ========================================
+// Supabase Configuration
+// ========================================
+
+const SUPABASE_URL = 'https://oaiugspjhzuxykqdmyvv.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9haXVnc3BqaHp1eHlrcWRteXZ2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ3MDI3MTgsImV4cCI6MjA4MDI3ODcxOH0.Yp0lbuLoiBO7EcjI_BoG7mqYK8UfQ0ihZejcypjKpX0';
 
 // ========================================
 // Data Types & Constants
 // ========================================
 
 const STORAGE_KEYS = {
-  writings: 'isaiah_writings',
   profile: 'isaiah_profile',
   theme: 'isaiah_theme',
   adminSession: 'isaiah_admin_session'
@@ -41,7 +47,79 @@ let state = {
     category: 'all',
     visibility: 'all'
   },
-  isAdmin: false
+  isAdmin: false,
+  isLoading: false
+};
+
+// ========================================
+// Supabase Client
+// ========================================
+
+const Supabase = {
+  async fetch(endpoint, options = {}) {
+    const url = `${SUPABASE_URL}/rest/v1/${endpoint}`;
+    const headers = {
+      'apikey': SUPABASE_ANON_KEY,
+      'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+      'Content-Type': 'application/json',
+      'Prefer': options.prefer || 'return=representation'
+    };
+
+    try {
+      const response = await fetch(url, {
+        ...options,
+        headers: { ...headers, ...options.headers }
+      });
+
+      if (!response.ok) {
+        const error = await response.text();
+        console.error('Supabase error:', error);
+        throw new Error(error);
+      }
+
+      const text = await response.text();
+      return text ? JSON.parse(text) : null;
+    } catch (e) {
+      console.error('Supabase fetch error:', e);
+      throw e;
+    }
+  },
+
+  async getWritings(publicOnly = false) {
+    let query = 'writings?order=created_at.desc';
+    if (publicOnly) {
+      query += '&visibility=eq.public';
+    }
+    return await this.fetch(query);
+  },
+
+  async getWriting(id) {
+    const data = await this.fetch(`writings?id=eq.${id}`);
+    return data && data.length > 0 ? data[0] : null;
+  },
+
+  async createWriting(writing) {
+    const data = await this.fetch('writings', {
+      method: 'POST',
+      body: JSON.stringify(writing)
+    });
+    return data && data.length > 0 ? data[0] : null;
+  },
+
+  async updateWriting(id, updates) {
+    const data = await this.fetch(`writings?id=eq.${id}`, {
+      method: 'PATCH',
+      body: JSON.stringify(updates)
+    });
+    return data && data.length > 0 ? data[0] : null;
+  },
+
+  async deleteWriting(id) {
+    await this.fetch(`writings?id=eq.${id}`, {
+      method: 'DELETE'
+    });
+    return true;
+  }
 };
 
 // ========================================
@@ -49,7 +127,6 @@ let state = {
 // ========================================
 
 const Admin = {
-  // Check if user is authenticated as admin
   isAuthenticated() {
     const session = Storage.get(STORAGE_KEYS.adminSession);
     if (session && session.expires > Date.now()) {
@@ -60,10 +137,8 @@ const Admin = {
     return false;
   },
 
-  // Login with password
   login(password) {
     if (password === ADMIN_PASSWORD) {
-      // Session expires in 24 hours
       const session = {
         authenticated: true,
         expires: Date.now() + (24 * 60 * 60 * 1000)
@@ -79,7 +154,6 @@ const Admin = {
     return false;
   },
 
-  // Logout
   logout() {
     localStorage.removeItem(STORAGE_KEYS.adminSession);
     state.isAdmin = false;
@@ -90,7 +164,7 @@ const Admin = {
 };
 
 // ========================================
-// Storage Operations
+// Local Storage Operations
 // ========================================
 
 const Storage = {
@@ -114,8 +188,7 @@ const Storage = {
     }
   },
 
-  loadAll() {
-    state.writings = Storage.get(STORAGE_KEYS.writings) || [];
+  loadLocal() {
     state.profile = Storage.get(STORAGE_KEYS.profile) || { name: 'Isaiah', bio: '' };
 
     const savedTheme = Storage.get(STORAGE_KEYS.theme);
@@ -123,12 +196,7 @@ const Storage = {
       document.documentElement.setAttribute('data-theme', savedTheme);
     }
 
-    // Check admin session
     Admin.isAuthenticated();
-  },
-
-  saveWritings() {
-    Storage.set(STORAGE_KEYS.writings, state.writings);
   },
 
   saveProfile() {
@@ -141,58 +209,88 @@ const Storage = {
 };
 
 // ========================================
-// Writing CRUD Operations
+// Writing Operations
 // ========================================
 
 const Writings = {
-  create(data) {
-    if (!state.isAdmin) return null;
-
-    const writing = {
-      id: crypto.randomUUID(),
-      title: data.title || 'Sans titre',
-      content: data.content || '',
-      excerpt: this.createExcerpt(data.content || ''),
-      tags: data.tags || [],
-      category: data.category || 'other',
-      visibility: data.visibility || 'private',
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
-    };
-
-    state.writings.unshift(writing);
-    Storage.saveWritings();
-    return writing;
+  async loadAll() {
+    try {
+      state.isLoading = true;
+      // Load all writings if admin, only public if visitor
+      state.writings = await Supabase.getWritings(!state.isAdmin);
+      state.isLoading = false;
+      return state.writings;
+    } catch (e) {
+      console.error('Error loading writings:', e);
+      state.writings = [];
+      state.isLoading = false;
+      UI.toast('Erreur de chargement', 'error');
+      return [];
+    }
   },
 
-  update(id, data) {
+  async create(data) {
     if (!state.isAdmin) return null;
 
-    const index = state.writings.findIndex(w => w.id === id);
-    if (index === -1) return null;
+    try {
+      const writing = {
+        title: data.title || 'Sans titre',
+        content: data.content || '',
+        excerpt: this.createExcerpt(data.content || ''),
+        tags: data.tags || [],
+        category: data.category || 'other',
+        visibility: data.visibility || 'private'
+      };
 
-    const writing = state.writings[index];
-    const updated = {
-      ...writing,
-      ...data,
-      excerpt: this.createExcerpt(data.content || writing.content),
-      updatedAt: new Date().toISOString()
-    };
-
-    state.writings[index] = updated;
-    Storage.saveWritings();
-    return updated;
+      const created = await Supabase.createWriting(writing);
+      if (created) {
+        state.writings.unshift(created);
+      }
+      return created;
+    } catch (e) {
+      console.error('Error creating writing:', e);
+      UI.toast('Erreur lors de la création', 'error');
+      return null;
+    }
   },
 
-  delete(id) {
+  async update(id, data) {
+    if (!state.isAdmin) return null;
+
+    try {
+      const updates = {
+        ...data,
+        excerpt: this.createExcerpt(data.content || ''),
+        updated_at: new Date().toISOString()
+      };
+
+      const updated = await Supabase.updateWriting(id, updates);
+      if (updated) {
+        const index = state.writings.findIndex(w => w.id === id);
+        if (index !== -1) {
+          state.writings[index] = updated;
+        }
+      }
+      return updated;
+    } catch (e) {
+      console.error('Error updating writing:', e);
+      UI.toast('Erreur lors de la mise à jour', 'error');
+      return null;
+    }
+  },
+
+  async delete(id) {
     if (!state.isAdmin) return false;
 
-    const index = state.writings.findIndex(w => w.id === id);
-    if (index === -1) return false;
-
-    state.writings.splice(index, 1);
-    Storage.saveWritings();
-    return true;
+    try {
+      await Supabase.deleteWriting(id);
+      state.writings = state.writings.filter(w => w.id !== id);
+      return true;
+    } catch (e) {
+      console.error('Error deleting writing:', e);
+      UI.toast('Erreur lors de la suppression', 'error');
+      return false;
+    }
   },
 
   get(id) {
@@ -211,7 +309,7 @@ const Writings = {
       const categoryMatch = state.filters.category === 'all' || w.category === state.filters.category;
       const visibilityMatch = state.isAdmin ?
         (state.filters.visibility === 'all' || w.visibility === state.filters.visibility) :
-        true; // Non-admin always sees only public
+        true;
       return categoryMatch && visibilityMatch;
     });
   },
@@ -234,7 +332,7 @@ const Writings = {
 };
 
 // ========================================
-// Markdown Parser (Simple)
+// Markdown Parser
 // ========================================
 
 const Markdown = {
@@ -275,7 +373,6 @@ const Markdown = {
 // ========================================
 
 const UI = {
-  // Update UI based on admin status
   updateAdminUI() {
     const adminElements = document.querySelectorAll('.admin-only');
     const visitorElements = document.querySelectorAll('.visitor-only');
@@ -306,16 +403,12 @@ const UI = {
       adminBtn.classList.remove('logged-in');
     }
 
-    // Update filters visibility
     const visibilityFilters = document.querySelector('.filter-group[data-admin-only]');
     if (visibilityFilters) {
       visibilityFilters.style.display = state.isAdmin ? 'flex' : 'none';
     }
-
-    this.renderWritingsGrid();
   },
 
-  // Toast Notifications
   toast(message, type = 'default') {
     const toast = document.getElementById('toast');
     toast.textContent = message;
@@ -326,9 +419,7 @@ const UI = {
     }, 3000);
   },
 
-  // Navigation
-  navigateTo(page) {
-    // Protect admin-only pages
+  async navigateTo(page) {
     if ((page === 'write' || page === 'profile') && !state.isAdmin) {
       this.showLoginModal();
       return;
@@ -346,20 +437,21 @@ const UI = {
       });
 
       if (page === 'home') {
-        this.renderWritingsGrid();
+        await this.renderWritingsGrid();
       } else if (page === 'profile') {
         this.renderProfile();
       }
     }
   },
 
-  // Render writings grid on home page
-  renderWritingsGrid() {
+  async renderWritingsGrid() {
     const grid = document.getElementById('writingsGrid');
     const emptyState = document.getElementById('emptyState');
+
+    // Reload writings from database
+    await Writings.loadAll();
     const writings = Writings.getFiltered();
 
-    // Update empty state message based on admin status
     const emptyTitle = emptyState.querySelector('h2');
     const emptyText = emptyState.querySelector('p');
     const emptyBtn = emptyState.querySelector('button');
@@ -391,11 +483,11 @@ const UI = {
           ${state.isAdmin ? `<span class="card-visibility">${writing.visibility === 'public' ? '🌍' : '🔒'}</span>` : ''}
         </div>
         <h3 class="card-title">${this.escapeHtml(writing.title)}</h3>
-        <p class="card-excerpt">${this.escapeHtml(writing.excerpt)}</p>
+        <p class="card-excerpt">${this.escapeHtml(writing.excerpt || '')}</p>
         <div class="card-footer">
-          <span class="card-date">${this.formatDate(writing.createdAt)}</span>
+          <span class="card-date">${this.formatDate(writing.created_at)}</span>
           <div class="card-tags">
-            ${writing.tags.slice(0, 3).map(tag => `<span class="card-tag">${this.escapeHtml(tag)}</span>`).join('')}
+            ${(writing.tags || []).slice(0, 3).map(tag => `<span class="card-tag">${this.escapeHtml(tag)}</span>`).join('')}
           </div>
         </div>
       </article>
@@ -408,12 +500,10 @@ const UI = {
     });
   },
 
-  // Open reading view
   openReading(id) {
     const writing = Writings.get(id);
     if (!writing) return;
 
-    // Non-admin can only view public writings
     if (!state.isAdmin && writing.visibility !== 'public') {
       this.toast('Cet écrit est privé', 'error');
       return;
@@ -422,23 +512,21 @@ const UI = {
     state.currentWritingId = id;
 
     document.getElementById('readCategory').textContent = CATEGORIES[writing.category];
-    document.getElementById('readDate').textContent = this.formatDate(writing.createdAt);
+    document.getElementById('readDate').textContent = this.formatDate(writing.created_at);
     document.getElementById('readVisibility').textContent = writing.visibility === 'public' ? '🌍 Public' : '🔒 Privé';
     document.getElementById('readVisibility').style.display = state.isAdmin ? '' : 'none';
     document.getElementById('readTitle').textContent = writing.title;
-    document.getElementById('readTags').innerHTML = writing.tags.map(tag =>
+    document.getElementById('readTags').innerHTML = (writing.tags || []).map(tag =>
       `<span class="reading-tag">#${this.escapeHtml(tag)}</span>`
     ).join('');
     document.getElementById('readContent').innerHTML = Markdown.parse(writing.content);
 
-    // Show/hide admin controls
     const readingFooter = document.querySelector('.reading-footer');
     readingFooter.style.display = state.isAdmin ? 'flex' : 'none';
 
     this.navigateTo('read');
   },
 
-  // Open editor for new or existing writing
   openEditor(id = null) {
     if (!state.isAdmin) {
       this.showLoginModal();
@@ -464,7 +552,6 @@ const UI = {
     this.navigateTo('write');
   },
 
-  // Render tags in editor
   renderTags(tags) {
     const tagsList = document.getElementById('tagsList');
     tagsList.innerHTML = tags.map(tag => `
@@ -489,8 +576,7 @@ const UI = {
     );
   },
 
-  // Save current writing
-  saveWriting() {
+  async saveWriting() {
     if (!state.isAdmin) {
       this.toast('Accès non autorisé', 'error');
       return;
@@ -516,31 +602,34 @@ const UI = {
     };
 
     if (state.currentWritingId) {
-      Writings.update(state.currentWritingId, data);
-      this.toast('Écrit mis à jour ✓', 'success');
+      const updated = await Writings.update(state.currentWritingId, data);
+      if (updated) {
+        this.toast('Écrit mis à jour ✓', 'success');
+      }
     } else {
-      const writing = Writings.create(data);
-      state.currentWritingId = writing.id;
-      this.toast('Écrit sauvegardé ✓', 'success');
+      const created = await Writings.create(data);
+      if (created) {
+        state.currentWritingId = created.id;
+        this.toast('Écrit sauvegardé ✓', 'success');
+      }
     }
 
     this.navigateTo('home');
   },
 
-  // Delete writing
-  deleteWriting(id) {
+  async deleteWriting(id) {
     if (!state.isAdmin) {
       this.toast('Accès non autorisé', 'error');
       return;
     }
 
-    if (Writings.delete(id)) {
+    const deleted = await Writings.delete(id);
+    if (deleted) {
       this.toast('Écrit supprimé', 'success');
       this.navigateTo('home');
     }
   },
 
-  // Render profile page
   renderProfile() {
     if (!state.isAdmin) {
       this.navigateTo('home');
@@ -580,9 +669,9 @@ const UI = {
             <span class="card-visibility">🌍</span>
           </div>
           <h3 class="card-title">${this.escapeHtml(writing.title)}</h3>
-          <p class="card-excerpt">${this.escapeHtml(writing.excerpt)}</p>
+          <p class="card-excerpt">${this.escapeHtml(writing.excerpt || '')}</p>
           <div class="card-footer">
-            <span class="card-date">${this.formatDate(writing.createdAt)}</span>
+            <span class="card-date">${this.formatDate(writing.created_at)}</span>
           </div>
         </article>
       `).join('');
@@ -608,7 +697,6 @@ const UI = {
     this.toast('Profil sauvegardé ✓', 'success');
   },
 
-  // Toggle theme
   toggleTheme() {
     const current = document.documentElement.getAttribute('data-theme');
     const next = current === 'dark' ? 'light' : 'dark';
@@ -616,8 +704,8 @@ const UI = {
     Storage.saveTheme(next);
   },
 
-  // Helper: Format date
   formatDate(isoString) {
+    if (!isoString) return '';
     const date = new Date(isoString);
     return new Intl.DateTimeFormat('fr-FR', {
       day: 'numeric',
@@ -626,14 +714,13 @@ const UI = {
     }).format(date);
   },
 
-  // Helper: Escape HTML
   escapeHtml(text) {
+    if (!text) return '';
     const div = document.createElement('div');
     div.textContent = text;
     return div.innerHTML;
   },
 
-  // Modal helpers
   showDeleteModal() {
     document.getElementById('deleteModal').classList.add('show');
   },
@@ -654,7 +741,7 @@ const UI = {
 };
 
 // ========================================
-// Editor Toolbar Actions
+// Editor Toolbar
 // ========================================
 
 const Editor = {
@@ -701,7 +788,6 @@ const Editor = {
 // ========================================
 
 function initializeEventListeners() {
-  // Navigation links
   document.querySelectorAll('[data-page]').forEach(el => {
     el.addEventListener('click', (e) => {
       e.preventDefault();
@@ -715,12 +801,10 @@ function initializeEventListeners() {
     });
   });
 
-  // Theme toggle
   document.getElementById('themeToggle').addEventListener('click', () => {
     UI.toggleTheme();
   });
 
-  // Admin button
   document.getElementById('adminBtn').addEventListener('click', () => {
     if (state.isAdmin) {
       Admin.logout();
@@ -729,18 +813,18 @@ function initializeEventListeners() {
     }
   });
 
-  // Login form
-  document.getElementById('loginForm').addEventListener('submit', (e) => {
+  document.getElementById('loginForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     const password = document.getElementById('adminPassword').value;
-    Admin.login(password);
+    if (Admin.login(password)) {
+      await UI.renderWritingsGrid();
+    }
   });
 
   document.getElementById('cancelLogin').addEventListener('click', () => {
     UI.hideLoginModal();
   });
 
-  // Filter buttons - Category
   document.querySelectorAll('.filter-btn[data-filter]').forEach(btn => {
     btn.addEventListener('click', () => {
       document.querySelectorAll('.filter-btn[data-filter]').forEach(b => b.classList.remove('active'));
@@ -750,7 +834,6 @@ function initializeEventListeners() {
     });
   });
 
-  // Filter buttons - Visibility  
   document.querySelectorAll('.filter-btn[data-visibility]').forEach(btn => {
     btn.addEventListener('click', () => {
       document.querySelectorAll('.filter-btn[data-visibility]').forEach(b => b.classList.remove('active'));
@@ -760,7 +843,6 @@ function initializeEventListeners() {
     });
   });
 
-  // Visibility toggle in editor
   document.querySelectorAll('.toggle-btn[data-visibility]').forEach(btn => {
     btn.addEventListener('click', () => {
       document.querySelectorAll('.toggle-btn[data-visibility]').forEach(b => b.classList.remove('active'));
@@ -768,7 +850,6 @@ function initializeEventListeners() {
     });
   });
 
-  // Tags input
   const tagsInput = document.getElementById('tagsInput');
   if (tagsInput) {
     tagsInput.addEventListener('keydown', (e) => {
@@ -787,7 +868,6 @@ function initializeEventListeners() {
     });
   }
 
-  // Toolbar buttons
   document.querySelectorAll('.toolbar-btn[data-action]').forEach(btn => {
     btn.addEventListener('click', () => {
       const action = btn.dataset.action;
@@ -797,7 +877,6 @@ function initializeEventListeners() {
     });
   });
 
-  // Keyboard shortcuts in editor
   const writingContent = document.getElementById('writingContent');
   if (writingContent) {
     writingContent.addEventListener('keydown', (e) => {
@@ -816,7 +895,6 @@ function initializeEventListeners() {
     });
   }
 
-  // Preview toggle
   const previewToggle = document.getElementById('previewToggle');
   if (previewToggle) {
     previewToggle.addEventListener('click', () => {
@@ -824,7 +902,6 @@ function initializeEventListeners() {
     });
   }
 
-  // Save writing
   const saveWriting = document.getElementById('saveWriting');
   if (saveWriting) {
     saveWriting.addEventListener('click', () => {
@@ -832,7 +909,6 @@ function initializeEventListeners() {
     });
   }
 
-  // Edit from reading view
   const editFromRead = document.getElementById('editFromRead');
   if (editFromRead) {
     editFromRead.addEventListener('click', () => {
@@ -840,7 +916,6 @@ function initializeEventListeners() {
     });
   }
 
-  // Delete from reading view
   const deleteFromRead = document.getElementById('deleteFromRead');
   if (deleteFromRead) {
     deleteFromRead.addEventListener('click', () => {
@@ -848,7 +923,6 @@ function initializeEventListeners() {
     });
   }
 
-  // Delete modal
   document.getElementById('cancelDelete').addEventListener('click', () => {
     UI.hideDeleteModal();
   });
@@ -858,7 +932,6 @@ function initializeEventListeners() {
     UI.deleteWriting(state.currentWritingId);
   });
 
-  // Close modal on overlay click
   document.getElementById('deleteModal').addEventListener('click', (e) => {
     if (e.target.id === 'deleteModal') {
       UI.hideDeleteModal();
@@ -871,7 +944,6 @@ function initializeEventListeners() {
     }
   });
 
-  // Save profile
   const saveProfile = document.getElementById('saveProfile');
   if (saveProfile) {
     saveProfile.addEventListener('click', () => {
@@ -879,7 +951,6 @@ function initializeEventListeners() {
     });
   }
 
-  // Close modal with Escape key
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
       UI.hideDeleteModal();
@@ -892,18 +963,16 @@ function initializeEventListeners() {
 // Initialize Application
 // ========================================
 
-function init() {
-  Storage.loadAll();
+async function init() {
+  Storage.loadLocal();
   initializeEventListeners();
   UI.updateAdminUI();
-  UI.renderWritingsGrid();
+  await UI.renderWritingsGrid();
 
-  // Set default filter
   const defaultFilter = document.querySelector('.filter-btn[data-visibility="all"]');
   if (defaultFilter) {
     defaultFilter.classList.add('active');
   }
 }
 
-// Start the app
 document.addEventListener('DOMContentLoaded', init);
