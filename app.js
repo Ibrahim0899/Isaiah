@@ -376,8 +376,8 @@ const UI = {
     const adminBtn = document.getElementById('adminBtn');
 
     if (state.isAdmin) {
-      adminElements.forEach(el => el.style.display = '');
-      visitorElements.forEach(el => el.style.display = 'none');
+      adminElements.forEach(el => el.classList.remove('hidden'));
+      visitorElements.forEach(el => el.classList.add('hidden'));
       adminBtn.innerHTML = `
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
@@ -388,8 +388,8 @@ const UI = {
       adminBtn.title = 'Déconnexion';
       adminBtn.classList.add('logged-in');
     } else {
-      adminElements.forEach(el => el.style.display = 'none');
-      visitorElements.forEach(el => el.style.display = '');
+      adminElements.forEach(el => el.classList.add('hidden'));
+      visitorElements.forEach(el => el.classList.remove('hidden'));
       adminBtn.innerHTML = `
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>

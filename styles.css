@@ -1406,7 +1406,12 @@ body {
   margin-top: var(--space-md);
 }
 
-/* Admin-only elements are hidden by default */
-.admin-only {
-  display: none;
+/* Admin-only elements - visibility controlled via JS using .hidden class */
+.admin-only.hidden {
+  display: none !important;
+}
+
+/* Utility class for hiding elements - works with any display type */
+.hidden {
+  display: none !important;
 }
