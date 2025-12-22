@@ -12,6 +12,14 @@
     </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+
+    <!-- Security Headers -->
+    <meta http-equiv="X-Content-Type-Options" content="nosniff">
+    <meta http-equiv="X-Frame-Options" content="SAMEORIGIN">
+    <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
+    <meta http-equiv="Permissions-Policy" content="geolocation=(), microphone=(), camera=()">
+
     <title>Isaiah — Dis-le. Guéris.</title>
     <meta name="description"
         content="Isaiah - Une plateforme épurée pour partager vos écrits personnels. Poésie, fiction, essais et réflexions.">
@@ -21,6 +29,11 @@
         href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Inter:wght@400;500;600;700&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
+
+    <!-- DOMPurify for XSS Protection -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.6/purify.min.js"
+        integrity="sha512-H+rglffZ6f5gF7UJgvH4Naa+fGCgjrHKMgoFOGmcPTRwR6oILo5R+gtzNrpDp7iMV3udbymBVjkeZGNz1Em0kQ=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <!-- Google Tag Manager -->
     <script>(function (w, d, s, l, i) {
             w[l] = w[l] || []; w[l].push({
@@ -51,10 +64,10 @@
                 </svg>
                 <span class="logo-text">Isaiah</span>
             </a>
-            <nav class="nav admin-only">
-                <button class="nav-link" data-page="home">Bibliothèque</button>
-                <button class="nav-link" data-page="write">Écrire</button>
-                <button class="nav-link" data-page="profile">Profil</button>
+            <nav class="nav">
+                <button class="nav-link active" data-page="home">Bibliothèque</button>
+                <button class="nav-link" data-page="write" style="display:none">Écrire</button>
+                <button class="nav-link" data-page="profile" style="display:none">Profil</button>
             </nav>
             <div class="header-actions">
                 <button class="theme-toggle" id="themeToggle" aria-label="Changer le thème">
@@ -67,10 +80,10 @@
                         <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
                     </svg>
                 </button>
-                <button class="admin-btn" id="adminBtn" title="Connexion Admin">
+                <button class="auth-btn" id="authBtn" title="Connexion / Inscription">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-                        <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                        <circle cx="12" cy="7" r="4" />
                     </svg>
                 </button>
             </div>
@@ -84,7 +97,7 @@
             <div class="page-header">
                 <div>
                     <h1 class="page-title">Bibliothèque</h1>
-                    <p class="page-subtitle">Découvrez les écrits d'Isaiah</p>
+                    <p class="page-subtitle">Découvrez les écrits de la communauté</p>
                 </div>
                 <button class="btn btn-primary admin-only" data-page="write">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -238,15 +251,17 @@
 
                 <div class="reading-content prose" id="readContent"></div>
 
-                <footer class="reading-footer admin-only">
-                    <button class="btn btn-ghost" id="editFromRead">
+                <div class="reading-author" id="readAuthor"></div>
+
+                <footer class="reading-footer">
+                    <button class="btn btn-ghost" id="editWritingBtn">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
                             <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
                         </svg>
                         Modifier
                     </button>
-                    <button class="btn btn-ghost btn-danger" id="deleteFromRead">
+                    <button class="btn btn-ghost btn-danger" id="deleteWritingBtn">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <polyline points="3 6 5 6 21 6" />
                             <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
@@ -263,10 +278,14 @@
                 <div class="profile-header">
                     <div class="profile-avatar" id="profileAvatar">I</div>
                     <div class="profile-info">
-                        <input type="text" class="profile-name" id="profileName" placeholder="Votre nom" maxlength="50">
+                        <span class="role-badge" id="roleBadge">✍️ Écrivain</span>
+                        <input type="text" class="profile-name" id="profileName" placeholder="Nom affiché"
+                            maxlength="50">
+                        <input type="text" class="profile-username" id="profileUsername" placeholder="@pseudo"
+                            maxlength="30" disabled>
                         <textarea class="profile-bio" id="profileBio" placeholder="Écrivez votre biographie..."
                             maxlength="500"></textarea>
-                        <button class="btn btn-primary btn-sm" id="saveProfile">Sauvegarder le profil</button>
+                        <button class="btn btn-primary btn-sm" id="saveProfileBtn">Sauvegarder le profil</button>
                     </div>
                 </div>
 
@@ -286,10 +305,10 @@
                 </div>
 
                 <div class="profile-section">
-                    <h2>Écrits Publics</h2>
-                    <div class="writings-grid" id="publicWritingsGrid"></div>
-                    <div class="empty-state small" id="noPublicWritings">
-                        <p>Aucun écrit public pour le moment.</p>
+                    <h2>Mes Écrits</h2>
+                    <div class="writings-grid" id="myWritingsGrid"></div>
+                    <div class="empty-state small" id="noMyWritings">
+                        <p>Vous n'avez pas encore publié d'écrits.</p>
                     </div>
                 </div>
             </div>
@@ -311,18 +330,48 @@
         </div>
     </div>
 
-    <!-- Login Modal -->
-    <div class="modal-overlay" id="loginModal">
-        <div class="modal">
-            <h3>🔐 Connexion Admin</h3>
-            <p>Entrez le mot de passe pour accéder aux fonctionnalités d'édition.</p>
-            <form id="loginForm">
-                <input type="password" id="adminPassword" class="password-input" placeholder="Mot de passe"
-                    autocomplete="current-password">
-                <div class="modal-actions">
-                    <button type="button" class="btn btn-ghost" id="cancelLogin">Annuler</button>
-                    <button type="submit" class="btn btn-primary">Se connecter</button>
+    <!-- Auth Modal -->
+    <div class="modal-overlay" id="authModal">
+        <div class="modal auth-modal">
+            <button class="modal-close" id="closeAuthModal">&times;</button>
+            <div class="auth-tabs">
+                <button class="auth-tab active" id="loginTab">Connexion</button>
+                <button class="auth-tab" id="signupTab">Inscription</button>
+            </div>
+
+            <!-- Login Form -->
+            <form id="loginForm" class="auth-form">
+                <div class="form-group">
+                    <label for="loginEmail">Email</label>
+                    <input type="email" id="loginEmail" placeholder="votre@email.com" required>
                 </div>
+                <div class="form-group">
+                    <label for="loginPassword">Mot de passe</label>
+                    <input type="password" id="loginPassword" placeholder="••••••••" required>
+                </div>
+                <button type="submit" class="btn btn-primary btn-full">Se connecter</button>
+            </form>
+
+            <!-- Signup Form -->
+            <form id="signupForm" class="auth-form hidden">
+                <div class="form-group">
+                    <label for="signupEmail">Email</label>
+                    <input type="email" id="signupEmail" placeholder="votre@email.com" required>
+                </div>
+                <div class="form-group">
+                    <label for="signupUsername">Pseudo (unique)</label>
+                    <input type="text" id="signupUsername" placeholder="mon_pseudo" required minlength="3"
+                        maxlength="20">
+                </div>
+                <div class="form-group">
+                    <label for="signupDisplayName">Nom affiché</label>
+                    <input type="text" id="signupDisplayName" placeholder="Votre Nom" required>
+                </div>
+                <div class="form-group">
+                    <label for="signupPassword">Mot de passe</label>
+                    <input type="password" id="signupPassword" placeholder="••••••••" required minlength="6">
+                </div>
+                <button type="submit" class="btn btn-primary btn-full">Créer mon compte</button>
             </form>
         </div>
     </div>
