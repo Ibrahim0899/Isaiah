@@ -1334,7 +1334,7 @@ body {
 }
 
 /* ========================================
-   Admin Authentication
+   User Authentication
    ======================================== */
 
 .header-actions {
@@ -1343,7 +1343,7 @@ body {
   gap: var(--space-sm);
 }
 
-.admin-btn {
+.auth-btn {
   width: 40px;
   height: 40px;
   background: var(--bg-secondary);
@@ -1356,31 +1356,112 @@ body {
   transition: all var(--transition-fast);
 }
 
-.admin-btn:hover {
+.auth-btn:hover {
   background: var(--bg-tertiary);
 }
 
-.admin-btn svg {
+.auth-btn svg {
   width: 18px;
   height: 18px;
   color: var(--text-secondary);
 }
 
-.admin-btn.logged-in {
+.auth-btn.logged-in {
   background: var(--success);
   border-color: var(--success);
 }
 
-.admin-btn.logged-in svg {
+.auth-btn.logged-in svg {
   color: white;
 }
 
-.admin-btn.logged-in:hover {
+.auth-btn.logged-in:hover {
   background: #3d8259;
 }
 
-/* Login Modal */
-.password-input {
+/* Auth Modal */
+.auth-modal {
+  max-width: 400px;
+  width: 90%;
+}
+
+.modal-close {
+  position: absolute;
+  top: var(--space-md);
+  right: var(--space-md);
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  transition: color var(--transition-fast);
+}
+
+.modal-close:hover {
+  color: var(--text-primary);
+}
+
+.auth-tabs {
+  display: flex;
+  border-bottom: 1px solid var(--border-color);
+  margin-bottom: var(--space-lg);
+}
+
+.auth-tab {
+  flex: 1;
+  padding: var(--space-md);
+  background: none;
+  border: none;
+  font-family: var(--font-sans);
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  position: relative;
+}
+
+.auth-tab:hover {
+  color: var(--text-secondary);
+}
+
+.auth-tab.active {
+  color: var(--accent-primary);
+}
+
+.auth-tab.active::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--accent-primary);
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.auth-form.hidden {
+  display: none;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.form-group label {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.form-group input {
   width: 100%;
   padding: var(--space-md);
   background: var(--bg-secondary);
@@ -1389,29 +1470,134 @@ body {
   font-family: var(--font-sans);
   font-size: 1rem;
   color: var(--text-primary);
-  margin-bottom: var(--space-lg);
   outline: none;
   transition: border-color var(--transition-fast);
 }
 
-.password-input:focus {
+.form-group input:focus {
   border-color: var(--accent-primary);
 }
 
-.password-input::placeholder {
+.form-group input::placeholder {
   color: var(--text-tertiary);
 }
 
-#loginForm {
+.btn-full {
+  width: 100%;
+  justify-content: center;
+  padding: var(--space-md);
+  margin-top: var(--space-sm);
+}
+
+/* ========================================
+   Author Display on Cards
+   ======================================== */
+
+.card-author {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.author-avatar {
+  width: 28px;
+  height: 28px;
+  background: var(--accent-primary);
+  color: white;
+  border-radius: var(--radius-full);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.author-name {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+/* Author info in reading page */
+#readAuthor {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
   margin-top: var(--space-md);
+  padding: var(--space-md);
+  background: var(--bg-secondary);
+  border-radius: var(--radius-md);
 }
 
-/* Admin-only elements - visibility controlled via JS using .hidden class */
-.admin-only.hidden {
-  display: none !important;
+#readAuthor .author-avatar {
+  width: 40px;
+  height: 40px;
+  font-size: 1rem;
 }
 
-/* Utility class for hiding elements - works with any display type */
+#readAuthor span {
+  color: var(--text-secondary);
+}
+
+#readAuthor strong {
+  color: var(--text-primary);
+}
+
+/* ========================================
+   Profile Page Enhancements
+   ======================================== */
+
+.role-badge {
+  display: inline-block;
+  padding: var(--space-xs) var(--space-sm);
+  border-radius: var(--radius-full);
+  font-size: 0.8rem;
+  font-weight: 600;
+  margin-bottom: var(--space-md);
+}
+
+.role-badge.writer {
+  background: var(--accent-bg);
+  color: var(--accent-primary);
+}
+
+.role-badge.admin {
+  background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+  color: #3d2b00;
+}
+
+.profile-username {
+  width: 100%;
+  padding: var(--space-sm) var(--space-md);
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  font-family: var(--font-sans);
+  font-size: 0.9rem;
+  color: var(--text-tertiary);
+  margin-bottom: var(--space-md);
+}
+
+/* ========================================
+   Utility Classes
+   ======================================== */
+
 .hidden {
   display: none !important;
+}
+
+/* ========================================
+   Responsive Auth Modal
+   ======================================== */
+
+@media (max-width: 480px) {
+  .auth-modal {
+    max-width: 100%;
+    margin: var(--space-md);
+    border-radius: var(--radius-lg);
+  }
+
+  .auth-tabs {
+    margin-top: var(--space-xl);
+  }
 }
