@@ -287,6 +287,11 @@ const Supabase = {
 
   async getAllProfiles() {
     return await this.fetch('profiles?select=id,username,display_name,avatar_url,bio,role&order=created_at.desc');
+  },
+
+  // Alias for consistency
+  async getWritingsByAuthor(authorId) {
+    return await this.getAuthorWritings(authorId);
   }
 };
 
