@@ -277,6 +277,16 @@ const Supabase = {
     } catch (e) {
       console.log('View count increment failed:', e);
     }
+  },
+
+  async searchWriters(query) {
+    if (!query || query.length < 2) return [];
+    const searchTerm = `%${query}%`;
+    return await this.fetch(`profiles?or=(username.ilike.${encodeURIComponent(searchTerm)},display_name.ilike.${encodeURIComponent(searchTerm)})&select=id,username,display_name,avatar_url,bio,role&limit=10`);
+  },
+
+  async getAllProfiles() {
+    return await this.fetch('profiles?select=id,username,display_name,avatar_url,bio,role&order=created_at.desc');
   }
 };
 
@@ -330,6 +340,98 @@ const Follows = {
       UI.toast('Erreur lors du désabonnement', 'error');
       return false;
     }
+  }
+};
+
+// ========================================
+// Search System
+// ========================================
+
+const Search = {
+  debounceTimer: null,
+
+  init() {
+    const searchInput = document.getElementById('searchInput');
+    const searchResults = document.getElementById('searchResults');
+
+    if (!searchInput) return;
+
+    searchInput.addEventListener('input', (e) => {
+      clearTimeout(this.debounceTimer);
+      const query = e.target.value.trim();
+
+      if (query.length < 2) {
+        this.hideResults();
+        return;
+      }
+
+      this.debounceTimer = setTimeout(() => {
+        this.performSearch(query);
+      }, 300);
+    });
+
+    searchInput.addEventListener('focus', () => {
+      if (searchInput.value.length >= 2) {
+        this.performSearch(searchInput.value.trim());
+      }
+    });
+
+    // Close on click outside
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('.search-container')) {
+        this.hideResults();
+      }
+    });
+  },
+
+  async performSearch(query) {
+    try {
+      const results = await Supabase.searchWriters(query);
+      this.renderResults(results);
+    } catch (e) {
+      console.error('Search error:', e);
+    }
+  },
+
+  renderResults(results) {
+    const container = document.getElementById('searchResults');
+
+    if (!results || results.length === 0) {
+      container.innerHTML = '<div class="search-no-results">Aucun écrivain trouvé</div>';
+      container.classList.remove('hidden');
+      return;
+    }
+
+    container.innerHTML = results.map(writer => {
+      const initial = (writer.display_name || writer.username || 'U').charAt(0).toUpperCase();
+      const roleLabel = writer.role === 'admin' ? ' 👑' : '';
+
+      return `
+        <div class="search-result-item" data-writer-id="${writer.id}">
+          <div class="search-result-avatar">${initial}</div>
+          <div class="search-result-info">
+            <div class="search-result-name">${UI.escapeHtml(writer.display_name || writer.username)}${roleLabel}</div>
+            <div class="search-result-username">@${UI.escapeHtml(writer.username)}</div>
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    container.classList.remove('hidden');
+
+    // Add click listeners
+    container.querySelectorAll('.search-result-item').forEach(item => {
+      item.addEventListener('click', () => {
+        const writerId = item.dataset.writerId;
+        this.hideResults();
+        document.getElementById('searchInput').value = '';
+        UI.showWriterProfile(writerId);
+      });
+    });
+  },
+
+  hideResults() {
+    document.getElementById('searchResults')?.classList.add('hidden');
   }
 };
 
@@ -922,11 +1024,76 @@ const UI = {
     }
 
     // Update button UI
-    const btn = document.querySelector(`.btn-follow[data-writer-id="${writerId}"]`);
-    if (btn) {
+    const btns = document.querySelectorAll(`.btn-follow[data-writer-id="${writerId}"]`);
+    btns.forEach(btn => {
       btn.textContent = Follows.isFollowing(writerId) ? 'Suivi' : 'Suivre';
       btn.classList.toggle('btn-following', Follows.isFollowing(writerId));
       btn.classList.toggle('btn-primary', !Follows.isFollowing(writerId));
+    });
+  },
+
+  async showWriterProfile(writerId) {
+    try {
+      // Get writer info
+      const writers = await Supabase.fetch(`profiles?id=eq.${writerId}&select=*`);
+      if (!writers || writers.length === 0) {
+        this.toast('Écrivain non trouvé', 'error');
+        return;
+      }
+
+      const writer = writers[0];
+      const writings = await Supabase.getWritingsByAuthor(writerId);
+      const isFollowing = Follows.isFollowing(writerId);
+      const initial = (writer.display_name || writer.username || 'U').charAt(0).toUpperCase();
+
+      // Create modal
+      const modal = document.createElement('div');
+      modal.className = 'modal-overlay';
+      modal.id = 'writerModal';
+      modal.innerHTML = `
+        <div class="auth-modal" style="max-width: 600px;">
+          <button class="modal-close" onclick="document.getElementById('writerModal').remove()">&times;</button>
+          <div style="text-align: center; padding: 2rem;">
+            <div class="writer-avatar" style="width: 80px; height: 80px; font-size: 2rem; margin: 0 auto 1rem;">
+              ${initial}
+            </div>
+            <h2 style="margin-bottom: 0.25rem;">${this.escapeHtml(writer.display_name || writer.username)}</h2>
+            <p style="color: var(--text-tertiary);">@${this.escapeHtml(writer.username)}</p>
+            ${writer.bio ? `<p style="margin-top: 1rem; color: var(--text-secondary);">${this.escapeHtml(writer.bio)}</p>` : ''}
+            <button class="btn ${isFollowing ? 'btn-following' : 'btn-primary'} btn-follow" 
+                    style="margin-top: 1rem;"
+                    onclick="UI.toggleFollow('${writer.id}')" data-writer-id="${writer.id}">
+              ${isFollowing ? 'Suivi' : 'Suivre'}
+            </button>
+          </div>
+          <div style="border-top: 1px solid var(--border-color); padding: 1rem;">
+            <h3 style="margin-bottom: 1rem;">📖 Écrits (${writings.length})</h3>
+            ${writings.length > 0
+          ? `<div class="writings-grid">${writings.slice(0, 4).map(w => this.createWritingCard(w)).join('')}</div>`
+          : '<p style="color: var(--text-tertiary); text-align: center;">Aucun écrit public</p>'
+        }
+          </div>
+        </div>
+      `;
+
+      document.body.appendChild(modal);
+
+      // Close on overlay click
+      modal.addEventListener('click', (e) => {
+        if (e.target === modal) modal.remove();
+      });
+
+      // Add click handlers to writing cards
+      modal.querySelectorAll('.writing-card').forEach(card => {
+        card.addEventListener('click', () => {
+          modal.remove();
+          this.openReading(card.dataset.id);
+        });
+      });
+
+    } catch (e) {
+      console.error('Error loading writer profile:', e);
+      this.toast('Erreur lors du chargement', 'error');
     }
   },
 
@@ -1562,6 +1729,7 @@ async function initializeApp() {
   await Auth.init();
   UI.updateAuthUI();
   initializeEventListeners();
+  Search.init();
 
   // Navigate to appropriate page based on auth status
   if (Auth.isLoggedIn()) {

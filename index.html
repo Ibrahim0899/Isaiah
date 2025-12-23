@@ -86,6 +86,19 @@
                 <button class="nav-link" data-page="write" style="display:none">Écrire</button>
                 <button class="nav-link" data-page="profile" style="display:none">Profil</button>
             </nav>
+            <div class="search-container">
+                <div class="search-box">
+                    <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="11" cy="11" r="8" />
+                        <path d="M21 21l-4.35-4.35" />
+                    </svg>
+                    <input type="text" id="searchInput" class="search-input" placeholder="Rechercher des écrivains..."
+                        autocomplete="off">
+                </div>
+                <div class="search-results hidden" id="searchResults">
+                    <!-- Search results will appear here -->
+                </div>
+            </div>
             <div class="header-actions">
                 <button class="theme-toggle" id="themeToggle" aria-label="Changer le thème">
                     <svg class="sun-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
