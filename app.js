@@ -218,6 +218,52 @@ const Supabase = {
 
   async getAuthorWritings(authorId) {
     return await this.fetch(`writings?author_id=eq.${authorId}&visibility=eq.public&order=created_at.desc`);
+  },
+
+  async subscribe(email) {
+    const data = await this.fetch('subscriptions', {
+      method: 'POST',
+      body: JSON.stringify({ email }),
+      prefer: 'return=minimal'
+    });
+    return data;
+  }
+};
+
+// ========================================
+// Newsletter Subscriptions
+// ========================================
+
+const Subscriptions = {
+  async subscribe(email) {
+    // Rate limiting
+    if (!Security.checkRateLimit('subscribe', 3, 300000)) {
+      Security.logSecurityEvent('RATE_LIMIT_EXCEEDED', { action: 'subscribe' });
+      UI.toast('Trop de tentatives. Réessayez dans 5 minutes.', 'error');
+      return false;
+    }
+
+    // Validate email
+    if (!Security.isValidEmail(email)) {
+      UI.toast('Format d\'email invalide', 'error');
+      return false;
+    }
+
+    try {
+      await Supabase.subscribe(Security.sanitizeInput(email, 254));
+      Security.logSecurityEvent('SUBSCRIPTION_SUCCESS', { email });
+      UI.toast('🎉 Inscription réussie ! Bienvenue dans la communauté.', 'success');
+      return true;
+    } catch (e) {
+      console.error('Subscription error:', e);
+      // Check if it's a duplicate error
+      if (e.message && e.message.includes('duplicate')) {
+        UI.toast('Vous êtes déjà inscrit à la newsletter.', 'error');
+      } else {
+        UI.toast('Erreur lors de l\'inscription. Réessayez.', 'error');
+      }
+      return false;
+    }
   }
 };
 
@@ -1269,6 +1315,31 @@ function initializeEventListeners() {
     if (e.key === 'Escape') {
       UI.hideDeleteModal();
       UI.hideAuthModal();
+    }
+  });
+
+  // Newsletter subscription form
+  document.getElementById('newsletterForm')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const emailInput = document.getElementById('newsletterEmail');
+    const submitBtn = document.getElementById('subscribeBtn');
+    const btnText = submitBtn.querySelector('.btn-text');
+    const btnLoading = submitBtn.querySelector('.btn-loading');
+
+    // Show loading state
+    btnText.style.display = 'none';
+    btnLoading.style.display = 'inline';
+    submitBtn.disabled = true;
+
+    const success = await Subscriptions.subscribe(emailInput.value);
+
+    // Reset button state
+    btnText.style.display = 'inline';
+    btnLoading.style.display = 'none';
+    submitBtn.disabled = false;
+
+    if (success) {
+      emailInput.value = '';
     }
   });
 }

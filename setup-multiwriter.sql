@@ -100,3 +100,46 @@ CREATE POLICY "Admins can delete all writings" ON writings
 
 -- 9. Set you (Ibrahima) as admin - run this AFTER creating your account
 -- UPDATE profiles SET role = 'admin' WHERE username = 'YOUR_USERNAME';
+
+-- =============================================
+-- 10. Newsletter Subscriptions Table
+-- =============================================
+
+CREATE TABLE IF NOT EXISTS subscriptions (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  email TEXT UNIQUE NOT NULL,
+  name TEXT,
+  is_active BOOLEAN DEFAULT true,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  unsubscribed_at TIMESTAMPTZ
+);
+
+-- Enable RLS on subscriptions
+ALTER TABLE subscriptions ENABLE ROW LEVEL SECURITY;
+
+-- Anyone can subscribe (insert)
+CREATE POLICY "Anyone can subscribe" ON subscriptions
+  FOR INSERT WITH CHECK (true);
+
+-- Only admins can view subscriptions
+CREATE POLICY "Admins can view subscriptions" ON subscriptions
+  FOR SELECT USING (
+    EXISTS (
+      SELECT 1 FROM profiles 
+      WHERE profiles.id = auth.uid() 
+      AND profiles.role = 'admin'
+    )
+  );
+
+-- Only admins can update subscriptions
+CREATE POLICY "Admins can update subscriptions" ON subscriptions
+  FOR UPDATE USING (
+    EXISTS (
+      SELECT 1 FROM profiles 
+      WHERE profiles.id = auth.uid() 
+      AND profiles.role = 'admin'
+    )
+  );
+
+-- Create index for faster email lookups
+CREATE INDEX IF NOT EXISTS idx_subscriptions_email ON subscriptions(email);
