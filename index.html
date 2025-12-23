@@ -109,14 +109,85 @@
 
     <!-- Main Content -->
     <main class="main">
-        <!-- Home Page -->
-        <section id="page-home" class="page active">
+        <!-- Landing Page (for non-logged users) -->
+        <section id="page-landing" class="page active">
+            <div class="landing-hero">
+                <div class="landing-content">
+                    <h1 class="landing-title">Dis-le. Guéris.</h1>
+                    <p class="landing-subtitle">
+                        Isaiah est un espace d'écriture intime où les mots deviennent thérapie.
+                        Partagez vos écrits, découvrez des plumes inspirantes et rejoignez une communauté d'écrivains.
+                    </p>
+                    <div class="landing-cta">
+                        <button class="btn btn-primary btn-lg" id="landingAuthBtn">Commencer à écrire</button>
+                        <button class="btn btn-ghost btn-lg" id="exploreBtn">Découvrir les écrits</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- What is Isaiah -->
+            <div class="landing-section">
+                <h2 class="section-title">Qu'est-ce qu'Isaiah ?</h2>
+                <p class="section-text">
+                    Isaiah est une plateforme d'écriture créée par <strong>Ibrahim Isaiah NIASS</strong>.
+                    Un refuge pour ceux qui cherchent à exprimer leurs pensées, leurs douleurs, leurs joies
+                    à travers l'écriture. Ici, chaque mot compte.
+                </p>
+            </div>
+
+            <!-- Features -->
+            <div class="landing-section">
+                <h2 class="section-title">Ce que vous pouvez faire</h2>
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon">✍️</div>
+                        <h3>Écrire</h3>
+                        <p>Publiez vos poèmes, fictions, essais et réflexions dans un éditeur élégant.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">👥</div>
+                        <h3>Suivre</h3>
+                        <p>Abonnez-vous aux écrivains qui vous inspirent pour ne rien manquer.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">🔒</div>
+                        <h3>Contrôler</h3>
+                        <p>Choisissez qui peut voir vos écrits : public ou privé.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">💫</div>
+                        <h3>Découvrir</h3>
+                        <p>Explorez de nouvelles plumes et laissez-vous inspirer.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Featured Writings (Admin's public texts) -->
+            <div class="landing-section" id="featuredSection">
+                <h2 class="section-title">📖 Écrits en vedette</h2>
+                <p class="section-subtitle">par Ibrahim Isaiah NIASS</p>
+                <div class="writings-grid" id="featuredWritings">
+                    <!-- Featured writings will be inserted here -->
+                </div>
+            </div>
+
+            <!-- Discover Writers -->
+            <div class="landing-section" id="discoverSection">
+                <h2 class="section-title">✨ Découvrez des écrivains</h2>
+                <div class="writers-grid" id="writersGrid">
+                    <!-- Writers suggestions will be inserted here -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Library Page (for logged users) -->
+        <section id="page-home" class="page">
             <div class="page-header">
                 <div>
-                    <h1 class="page-title">Bibliothèque</h1>
-                    <p class="page-subtitle">Découvrez les écrits de la communauté</p>
+                    <h1 class="page-title">Ma Bibliothèque</h1>
+                    <p class="page-subtitle">Les écrits de vos abonnements</p>
                 </div>
-                <button class="btn btn-primary admin-only" data-page="write">
+                <button class="btn btn-primary" id="newWritingBtn">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M12 5v14M5 12h14" />
                     </svg>
@@ -146,11 +217,11 @@
             </div>
 
             <!-- Empty State -->
-            <div class="empty-state" id="emptyState">
+            <div class="empty-state hidden" id="emptyState">
                 <div class="empty-icon">✍️</div>
                 <h2>Aucun écrit pour le moment</h2>
-                <p>L'auteur n'a pas encore publié d'écrits. Revenez bientôt !</p>
-                <button class="btn btn-primary admin-only" data-page="write">Créer mon premier écrit</button>
+                <p>Abonnez-vous à des écrivains pour voir leurs écrits ici.</p>
+                <button class="btn btn-primary" id="discoverWritersBtn">Découvrir des écrivains</button>
             </div>
         </section>
 

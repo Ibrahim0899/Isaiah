@@ -143,3 +143,62 @@ CREATE POLICY "Admins can update subscriptions" ON subscriptions
 
 -- Create index for faster email lookups
 CREATE INDEX IF NOT EXISTS idx_subscriptions_email ON subscriptions(email);
+
+-- =============================================
+-- Isaiah V3 - Subscription & Views System
+-- =============================================
+
+-- 11. Add view_count to writings
+ALTER TABLE writings ADD COLUMN IF NOT EXISTS view_count INTEGER DEFAULT 0;
+
+-- 12. Create follows table (user subscriptions to writers)
+CREATE TABLE IF NOT EXISTS follows (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  follower_id UUID REFERENCES profiles(id) ON DELETE CASCADE NOT NULL,
+  following_id UUID REFERENCES profiles(id) ON DELETE CASCADE NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  UNIQUE(follower_id, following_id)
+);
+
+-- Enable RLS on follows
+ALTER TABLE follows ENABLE ROW LEVEL SECURITY;
+
+-- Users can see their own follows
+CREATE POLICY "Users can view own follows" ON follows
+  FOR SELECT USING (auth.uid() = follower_id);
+
+-- Users can follow/unfollow
+CREATE POLICY "Users can follow" ON follows
+  FOR INSERT WITH CHECK (auth.uid() = follower_id);
+
+CREATE POLICY "Users can unfollow" ON follows
+  FOR DELETE USING (auth.uid() = follower_id);
+
+-- 13. Function to increment view count
+CREATE OR REPLACE FUNCTION increment_view_count(writing_id UUID)
+RETURNS void AS $$
+BEGIN
+  UPDATE writings SET view_count = view_count + 1 WHERE id = writing_id;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- 14. Create indexes for performance
+CREATE INDEX IF NOT EXISTS idx_follows_follower ON follows(follower_id);
+CREATE INDEX IF NOT EXISTS idx_follows_following ON follows(following_id);
+CREATE INDEX IF NOT EXISTS idx_writings_author ON writings(author_id);
+
+-- 15. Get follower count for a profile
+CREATE OR REPLACE FUNCTION get_follower_count(profile_id UUID)
+RETURNS INTEGER AS $$
+BEGIN
+  RETURN (SELECT COUNT(*) FROM follows WHERE following_id = profile_id);
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- 16. Check if user follows another
+CREATE OR REPLACE FUNCTION is_following(follower UUID, following UUID)
+RETURNS BOOLEAN AS $$
+BEGIN
+  RETURN EXISTS (SELECT 1 FROM follows WHERE follower_id = follower AND following_id = following);
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;

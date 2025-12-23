@@ -227,6 +227,109 @@ const Supabase = {
       prefer: 'return=minimal'
     });
     return data;
+  },
+
+  // V3: Follows system
+  async getFollows(userId) {
+    return await this.fetch(`follows?follower_id=eq.${userId}&select=following_id`);
+  },
+
+  async follow(followingId) {
+    const data = await this.fetch('follows', {
+      method: 'POST',
+      body: JSON.stringify({
+        follower_id: state.user.user.id,
+        following_id: followingId
+      })
+    });
+    return data;
+  },
+
+  async unfollow(followingId) {
+    await this.fetch(`follows?follower_id=eq.${state.user.user.id}&following_id=eq.${followingId}`, {
+      method: 'DELETE'
+    });
+    return true;
+  },
+
+  async getWriters() {
+    return await this.fetch('profiles?role=eq.writer&select=id,username,display_name,avatar_url,bio');
+  },
+
+  async getAdminWritings() {
+    // Get writings from admin users
+    return await this.fetch(`writings?visibility=eq.public&order=created_at.desc&profiles.role=eq.admin&select=*,profiles!inner(id,username,display_name,avatar_url,role)`);
+  },
+
+  async getWritingsFromFollows(followingIds) {
+    if (!followingIds || followingIds.length === 0) return [];
+    const ids = followingIds.join(',');
+    return await this.fetch(`writings?author_id=in.(${ids})&visibility=eq.public&order=created_at.desc&select=*,profiles(id,username,display_name,avatar_url,role)`);
+  },
+
+  async incrementViewCount(writingId) {
+    // Use RPC function
+    try {
+      await this.fetch('rpc/increment_view_count', {
+        method: 'POST',
+        body: JSON.stringify({ writing_id: writingId })
+      });
+    } catch (e) {
+      console.log('View count increment failed:', e);
+    }
+  }
+};
+
+// ========================================
+// Follows System
+// ========================================
+
+const Follows = {
+  following: new Set(),
+
+  async load() {
+    if (!Auth.isLoggedIn()) return;
+    try {
+      const follows = await Supabase.getFollows(state.user.user.id);
+      this.following = new Set(follows.map(f => f.following_id));
+    } catch (e) {
+      console.error('Error loading follows:', e);
+    }
+  },
+
+  isFollowing(userId) {
+    return this.following.has(userId);
+  },
+
+  async follow(userId) {
+    if (!Auth.isLoggedIn()) {
+      UI.showAuthModal();
+      return false;
+    }
+
+    try {
+      await Supabase.follow(userId);
+      this.following.add(userId);
+      UI.toast('Vous suivez maintenant cet écrivain !', 'success');
+      return true;
+    } catch (e) {
+      console.error('Follow error:', e);
+      UI.toast('Erreur lors de l\'abonnement', 'error');
+      return false;
+    }
+  },
+
+  async unfollow(userId) {
+    try {
+      await Supabase.unfollow(userId);
+      this.following.delete(userId);
+      UI.toast('Désabonné', 'success');
+      return true;
+    } catch (e) {
+      console.error('Unfollow error:', e);
+      UI.toast('Erreur lors du désabonnement', 'error');
+      return false;
+    }
   }
 };
 
@@ -727,6 +830,11 @@ const UI = {
   },
 
   async navigateTo(page) {
+    // Redirect to landing for non-logged users trying to access library
+    if (page === 'home' && !Auth.isLoggedIn()) {
+      page = 'landing';
+    }
+
     if ((page === 'write' || page === 'profile') && !Auth.isLoggedIn()) {
       this.showAuthModal();
       return;
@@ -743,11 +851,82 @@ const UI = {
         link.classList.toggle('active', link.dataset.page === page);
       });
 
-      if (page === 'home') {
+      if (page === 'landing') {
+        await this.renderLandingPage();
+      } else if (page === 'home') {
+        await Follows.load();
         await this.renderWritingsGrid();
       } else if (page === 'profile') {
         this.renderProfile();
       }
+    }
+  },
+
+  async renderLandingPage() {
+    // Render featured writings (admin's)
+    const featuredGrid = document.getElementById('featuredWritings');
+    const writersGrid = document.getElementById('writersGrid');
+
+    try {
+      // Get admin writings
+      const writings = await Supabase.getAdminWritings();
+
+      if (writings && writings.length > 0) {
+        featuredGrid.innerHTML = writings.slice(0, 4).map(w => this.createWritingCard(w)).join('');
+      } else {
+        featuredGrid.innerHTML = '<p class="empty-text">Aucun écrit pour le moment.</p>';
+      }
+
+      // Get writers suggestions
+      const writers = await Supabase.getWriters();
+      if (writers && writers.length > 0) {
+        writersGrid.innerHTML = writers.slice(0, 6).map(w => this.createWriterCard(w)).join('');
+      } else {
+        document.getElementById('discoverSection').style.display = 'none';
+      }
+    } catch (e) {
+      console.error('Error loading landing page:', e);
+    }
+  },
+
+  createWriterCard(writer) {
+    const initial = (writer.display_name || writer.username || 'U').charAt(0).toUpperCase();
+    const isFollowing = Follows.isFollowing(writer.id);
+
+    return `
+      <div class="writer-card" data-writer-id="${writer.id}">
+        <div class="writer-avatar">${initial}</div>
+        <div class="writer-info">
+          <div class="writer-name">${this.escapeHtml(writer.display_name || writer.username)}</div>
+          <div class="writer-stats">@${this.escapeHtml(writer.username)}</div>
+        </div>
+        <button class="btn ${isFollowing ? 'btn-following' : 'btn-primary'} btn-follow" 
+                onclick="UI.toggleFollow('${writer.id}')" data-writer-id="${writer.id}">
+          ${isFollowing ? 'Suivi' : 'Suivre'}
+        </button>
+      </div>
+    `;
+  },
+
+  async toggleFollow(writerId) {
+    if (!Auth.isLoggedIn()) {
+      this.showAuthModal();
+      return;
+    }
+
+    const isFollowing = Follows.isFollowing(writerId);
+    if (isFollowing) {
+      await Follows.unfollow(writerId);
+    } else {
+      await Follows.follow(writerId);
+    }
+
+    // Update button UI
+    const btn = document.querySelector(`.btn-follow[data-writer-id="${writerId}"]`);
+    if (btn) {
+      btn.textContent = Follows.isFollowing(writerId) ? 'Suivi' : 'Suivre';
+      btn.classList.toggle('btn-following', Follows.isFollowing(writerId));
+      btn.classList.toggle('btn-primary', !Follows.isFollowing(writerId));
     }
   },
 
@@ -844,6 +1023,9 @@ const UI = {
 
     const readingFooter = document.querySelector('.reading-footer');
     readingFooter.style.display = Auth.canEdit(writing) ? 'flex' : 'none';
+
+    // Increment view count
+    Supabase.incrementViewCount(id);
 
     this.navigateTo('read');
   },
@@ -1342,6 +1524,33 @@ function initializeEventListeners() {
       emailInput.value = '';
     }
   });
+
+  // Landing page buttons
+  document.getElementById('landingAuthBtn')?.addEventListener('click', () => {
+    UI.showAuthModal('signup');
+  });
+
+  document.getElementById('exploreBtn')?.addEventListener('click', () => {
+    const featuredSection = document.getElementById('featuredSection');
+    if (featuredSection) {
+      featuredSection.scrollIntoView({ behavior: 'smooth' });
+    }
+  });
+
+  document.getElementById('discoverWritersBtn')?.addEventListener('click', () => {
+    UI.navigateTo('landing');
+    setTimeout(() => {
+      const discoverSection = document.getElementById('discoverSection');
+      if (discoverSection) {
+        discoverSection.scrollIntoView({ behavior: 'smooth' });
+      }
+    }, 100);
+  });
+
+  // New writing button
+  document.getElementById('newWritingBtn')?.addEventListener('click', () => {
+    UI.openEditor();
+  });
 }
 
 // ========================================
@@ -1353,7 +1562,14 @@ async function initializeApp() {
   await Auth.init();
   UI.updateAuthUI();
   initializeEventListeners();
-  await UI.navigateTo('home');
+
+  // Navigate to appropriate page based on auth status
+  if (Auth.isLoggedIn()) {
+    await Follows.load();
+    await UI.navigateTo('home');
+  } else {
+    await UI.navigateTo('landing');
+  }
 }
 
 document.addEventListener('DOMContentLoaded', initializeApp);
