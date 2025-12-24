@@ -116,6 +116,25 @@ const Security = {
       ...details
     };
     console.warn('[SECURITY]', logEntry);
+  },
+
+  // Get password strength indicator
+  getPasswordStrength(password) {
+    if (typeof password !== 'string' || password.length === 0) {
+      return { level: '', score: 0, color: '' };
+    }
+
+    let score = 0;
+    if (password.length >= 8) score++;
+    if (password.length >= 12) score++;
+    if (/[a-z]/.test(password)) score++;
+    if (/[A-Z]/.test(password)) score++;
+    if (/[0-9]/.test(password)) score++;
+    if (/[^a-zA-Z0-9]/.test(password)) score++;
+
+    if (score <= 2) return { level: 'Faible', score, color: '#C45A5A' };
+    if (score <= 4) return { level: 'Moyen', score, color: '#C4883A' };
+    return { level: 'Fort', score, color: '#4A9B6B' };
   }
 };
 
@@ -981,7 +1000,13 @@ const UI = {
       if (writings && writings.length > 0) {
         featuredGrid.innerHTML = writings.slice(0, 4).map(w => this.createWritingCard(w)).join('');
       } else {
-        featuredGrid.innerHTML = '<p class="empty-text">Aucun écrit pour le moment.</p>';
+        featuredGrid.innerHTML = `
+          <div class="feature-card" style="grid-column: 1/-1; text-align: center; padding: 3rem;">
+            <div class="feature-icon">✨</div>
+            <h3>Les mots arrivent bientôt...</h3>
+            <p>Soyez le premier à découvrir les écrits qui marquent.</p>
+          </div>
+        `;
       }
 
       // Get writers suggestions
@@ -1541,6 +1566,22 @@ function initializeEventListeners() {
   // Auth modal tabs
   document.getElementById('loginTab')?.addEventListener('click', () => UI.switchAuthMode('login'));
   document.getElementById('signupTab')?.addEventListener('click', () => UI.switchAuthMode('signup'));
+
+  // Password strength indicator
+  document.getElementById('signupPassword')?.addEventListener('input', (e) => {
+    const password = e.target.value;
+    const strength = Security.getPasswordStrength(password);
+    const strengthBar = document.getElementById('strengthBar');
+    const strengthText = document.getElementById('strengthText');
+
+    if (strengthBar && strengthText) {
+      const widthPercent = Math.min((strength.score / 6) * 100, 100);
+      strengthBar.style.setProperty('--strength-width', `${widthPercent}%`);
+      strengthBar.style.setProperty('--strength-color', strength.color);
+      strengthText.textContent = strength.level;
+      strengthText.style.color = strength.color;
+    }
+  });
 
   // Login form
   document.getElementById('loginForm')?.addEventListener('submit', async (e) => {

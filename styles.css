@@ -1699,6 +1699,43 @@ body {
    Utility Classes
    ======================================== */
 
+/* ========================================
+   Password Strength Indicator
+   ======================================== */
+
+.password-strength {
+  margin-top: var(--space-sm);
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.strength-bar {
+  flex: 1;
+  height: 4px;
+  background: var(--border-color);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+  transition: all var(--transition-fast);
+}
+
+.strength-bar::after {
+  content: '';
+  display: block;
+  height: 100%;
+  width: var(--strength-width, 0%);
+  background: var(--strength-color, var(--border-color));
+  border-radius: var(--radius-full);
+  transition: all var(--transition-base);
+}
+
+.strength-text {
+  font-size: 0.75rem;
+  font-weight: 500;
+  min-width: 50px;
+  color: var(--strength-color, var(--text-tertiary));
+}
+
 .hidden {
   display: none !important;
 }

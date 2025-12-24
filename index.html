@@ -121,7 +121,8 @@
                         <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
                     </svg>
                 </button>
-                <button class="auth-btn" id="authBtn" title="Connexion / Inscription">
+                <button class="auth-btn" id="authBtn" title="Connexion / Inscription"
+                    aria-label="Connexion ou Inscription">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
                         <circle cx="12" cy="7" r="4" />
@@ -484,6 +485,10 @@
                     <label for="signupPassword">Mot de passe</label>
                     <input type="password" id="signupPassword" placeholder="••••••••" required minlength="6"
                         autocomplete="new-password">
+                    <div class="password-strength" id="passwordStrength">
+                        <div class="strength-bar" id="strengthBar"></div>
+                        <span class="strength-text" id="strengthText"></span>
+                    </div>
                 </div>
                 <button type="submit" class="btn btn-primary btn-full">Créer mon compte</button>
             </form>
