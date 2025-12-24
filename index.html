@@ -23,11 +23,11 @@
     <!-- Content Security Policy - Maximum Protection -->
     <meta http-equiv="Content-Security-Policy" content="
         default-src 'self';
-        script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://www.googletagmanager.com https://www.google-analytics.com;
+        script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://www.googletagmanager.com https://*.googletagmanager.com https://www.google-analytics.com https://*.google-analytics.com;
         style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
         font-src 'self' https://fonts.gstatic.com;
         img-src 'self' data: https:;
-        connect-src 'self' https://*.supabase.co https://www.google-analytics.com https://www.googletagmanager.com;
+        connect-src 'self' https://*.supabase.co https://www.google-analytics.com https://*.google-analytics.com https://www.googletagmanager.com https://*.googletagmanager.com;
         frame-src 'none';
         object-src 'none';
         base-uri 'self';
@@ -40,6 +40,18 @@
     <title>Isaiah — Dis-le. Guéris.</title>
     <meta name="description"
         content="Isaiah - Une plateforme épurée pour partager vos écrits personnels. Poésie, fiction, essais et réflexions.">
+
+    <!-- Open Graph / Social Media -->
+    <meta property="og:title" content="Isaiah — Dis-le. Guéris.">
+    <meta property="og:description"
+        content="Une plateforme d'écriture intime où les mots deviennent thérapie. Partagez vos poèmes, fictions et réflexions.">
+    <meta property="og:image" content="https://ibrahim0899.github.io/Isaiah/affiche_oniyah_portrait.png">
+    <meta property="og:url" content="https://ibrahim0899.github.io/Isaiah/">
+    <meta property="og:type" content="website">
+    <meta property="og:locale" content="fr_FR">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Isaiah — Dis-le. Guéris.">
+    <meta name="twitter:description" content="Une plateforme d'écriture intime où les mots deviennent thérapie.">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
@@ -443,11 +455,12 @@
             <form id="loginForm" class="auth-form">
                 <div class="form-group">
                     <label for="loginEmail">Email</label>
-                    <input type="email" id="loginEmail" placeholder="votre@email.com" required>
+                    <input type="email" id="loginEmail" placeholder="votre@email.com" required autocomplete="email">
                 </div>
                 <div class="form-group">
                     <label for="loginPassword">Mot de passe</label>
-                    <input type="password" id="loginPassword" placeholder="••••••••" required>
+                    <input type="password" id="loginPassword" placeholder="••••••••" required
+                        autocomplete="current-password">
                 </div>
                 <button type="submit" class="btn btn-primary btn-full">Se connecter</button>
             </form>
@@ -456,20 +469,21 @@
             <form id="signupForm" class="auth-form hidden">
                 <div class="form-group">
                     <label for="signupEmail">Email</label>
-                    <input type="email" id="signupEmail" placeholder="votre@email.com" required>
+                    <input type="email" id="signupEmail" placeholder="votre@email.com" required autocomplete="email">
                 </div>
                 <div class="form-group">
                     <label for="signupUsername">Pseudo (unique)</label>
                     <input type="text" id="signupUsername" placeholder="mon_pseudo" required minlength="3"
-                        maxlength="20">
+                        maxlength="20" autocomplete="username">
                 </div>
                 <div class="form-group">
                     <label for="signupDisplayName">Nom affiché</label>
-                    <input type="text" id="signupDisplayName" placeholder="Votre Nom" required>
+                    <input type="text" id="signupDisplayName" placeholder="Votre Nom" required autocomplete="name">
                 </div>
                 <div class="form-group">
                     <label for="signupPassword">Mot de passe</label>
-                    <input type="password" id="signupPassword" placeholder="••••••••" required minlength="6">
+                    <input type="password" id="signupPassword" placeholder="••••••••" required minlength="6"
+                        autocomplete="new-password">
                 </div>
                 <button type="submit" class="btn btn-primary btn-full">Créer mon compte</button>
             </form>
@@ -495,7 +509,8 @@
                 </form>
             </div>
             <div class="footer-bottom">
-                <p>© 2024 Isaiah — Dis-le. Guéris.</p>
+                <p>© <span id="copyrightYear">2024</span> Isaiah — Dis-le. Guéris.</p>
+                <script>document.getElementById('copyrightYear').textContent = new Date().getFullYear();</script>
             </div>
         </div>
     </footer>

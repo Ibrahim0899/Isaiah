@@ -1594,7 +1594,7 @@ function initializeEventListeners() {
   document.querySelector('.empty-state button')?.addEventListener('click', () => UI.openEditor());
 
   // Editor toolbar
-  document.querySelectorAll('.editor-tool').forEach(btn => {
+  document.querySelectorAll('.toolbar-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       const action = btn.dataset.action;
       if (Editor.actions[action]) {
@@ -1614,27 +1614,23 @@ function initializeEventListeners() {
     });
   });
 
-  // Add tag
-  document.getElementById('addTagBtn')?.addEventListener('click', () => {
-    const input = document.getElementById('tagInput');
-    const tag = input.value.trim();
-    if (tag && !UI.getCurrentTags().includes(tag)) {
-      const currentTags = UI.getCurrentTags();
-      currentTags.push(tag);
-      UI.renderTags(currentTags);
-      input.value = '';
-    }
-  });
-
-  document.getElementById('tagInput')?.addEventListener('keypress', (e) => {
+  // Add tag via Enter key
+  document.getElementById('tagsInput')?.addEventListener('keypress', (e) => {
     if (e.key === 'Enter') {
       e.preventDefault();
-      document.getElementById('addTagBtn').click();
+      const input = e.target;
+      const tag = input.value.trim();
+      if (tag && !UI.getCurrentTags().includes(tag)) {
+        const currentTags = UI.getCurrentTags();
+        currentTags.push(tag);
+        UI.renderTags(currentTags);
+        input.value = '';
+      }
     }
   });
 
   // Save writing
-  document.getElementById('saveWritingBtn')?.addEventListener('click', () => UI.saveWriting());
+  document.getElementById('saveWriting')?.addEventListener('click', () => UI.saveWriting());
 
   // Back button
   document.getElementById('backBtn')?.addEventListener('click', () => UI.navigateTo('home'));
@@ -1649,14 +1645,14 @@ function initializeEventListeners() {
   document.getElementById('deleteWritingBtn')?.addEventListener('click', UI.showDeleteModal);
 
   // Delete modal
-  document.getElementById('confirmDeleteBtn')?.addEventListener('click', () => {
+  document.getElementById('confirmDelete')?.addEventListener('click', () => {
     if (state.currentWritingId) {
       UI.deleteWriting(state.currentWritingId);
       UI.hideDeleteModal();
     }
   });
 
-  document.getElementById('cancelDeleteBtn')?.addEventListener('click', UI.hideDeleteModal);
+  document.getElementById('cancelDelete')?.addEventListener('click', UI.hideDeleteModal);
   document.getElementById('deleteModal')?.addEventListener('click', (e) => {
     if (e.target.id === 'deleteModal') UI.hideDeleteModal();
   });
@@ -1719,10 +1715,6 @@ function initializeEventListeners() {
     }, 100);
   });
 
-  // New writing button
-  document.getElementById('newWritingBtn')?.addEventListener('click', () => {
-    UI.openEditor();
-  });
 }
 
 // ========================================
