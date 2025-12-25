@@ -629,6 +629,11 @@ const Auth = {
         throw new Error(data.error.message || 'Erreur de connexion');
       }
 
+      // Validate response structure
+      if (!data.user || !data.user.id) {
+        throw new Error('Réponse du serveur invalide');
+      }
+
       state.user = data;
       state.profile = await Supabase.getProfile(data.user.id);
 
