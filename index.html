@@ -2,14 +2,7 @@
 <html lang="fr" data-theme="light">
 
 <head>
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-Z7PLKRXZNQ"></script>
-    <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag() { dataLayer.push(arguments); }
-        gtag('js', new Date());
-        gtag('config', 'G-Z7PLKRXZNQ');
-    </script>
+    <!-- Analytics managed by CookieManager in app.js -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
@@ -62,23 +55,11 @@
     <!-- DOMPurify for XSS Protection -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.6/purify.min.js" crossorigin="anonymous"
         referrerpolicy="no-referrer"></script>
-    <!-- Google Tag Manager -->
-    <script>(function (w, d, s, l, i) {
-            w[l] = w[l] || []; w[l].push({
-                'gtm.start':
-                    new Date().getTime(), event: 'gtm.js'
-            }); var f = d.getElementsByTagName(s)[0],
-                j = d.createElement(s), dl = l != 'dataLayer' ? '&l=' + l : ''; j.async = true; j.src =
-                    'https://www.googletagmanager.com/gtm.js?id=' + i + dl; f.parentNode.insertBefore(j, f);
-        })(window, document, 'script', 'dataLayer', 'GTM-PWJ8KG43');</script>
-    <!-- End Google Tag Manager -->
+    <!-- Google Tag Manager managed by CookieManager in app.js -->
 </head>
 
 <body>
-    <!-- Google Tag Manager (noscript) -->
-    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-PWJ8KG43" height="0" width="0"
-            style="display:none;visibility:hidden"></iframe></noscript>
-    <!-- End Google Tag Manager (noscript) -->
+
 
     <!-- Header -->
     <header class="header">
@@ -147,6 +128,11 @@
                         <button class="btn btn-primary btn-lg" id="landingAuthBtn">Commencer à écrire</button>
                         <button class="btn btn-ghost btn-lg" id="exploreBtn">Découvrir les écrits</button>
                     </div>
+
+                    <!-- Hero Featured Writings -->
+                    <div class="hero-featured-writings" id="heroFeaturedWritings">
+                        <!-- First 2 writings will be inserted here dynamically -->
+                    </div>
                 </div>
             </div>
 
@@ -189,10 +175,10 @@
 
             <!-- Featured Writings (Admin's public texts) -->
             <div class="landing-section" id="featuredSection">
-                <h2 class="section-title">📖 Écrits en vedette</h2>
+                <h2 class="section-title">📖 Découvrez plus d'écrits</h2>
                 <p class="section-subtitle">par Ibrahim Isaiah NIASS</p>
                 <div class="writings-grid" id="featuredWritings">
-                    <!-- Featured writings will be inserted here -->
+                    <!-- Additional featured writings will be inserted here -->
                 </div>
             </div>
 
@@ -520,7 +506,23 @@
         </div>
     </footer>
 
-    <script src="app.js"></script>
+    <!-- Cookie Consent Banner -->
+    <div id="cookieBanner" class="cookie-banner hidden">
+        <div class="cookie-content">
+            <h3>🍪 Cookies & Confidentialité</h3>
+            <p>
+                Nous utilisons des cookies analytiques (Google Analytics) pour comprendre comment vous utilisez Isaiah
+                et
+                améliorer l'expérience. Aucune donnée personnelle n'est vendue.
+            </p>
+        </div>
+        <div class="cookie-actions">
+            <button id="cookieRefuse" class="btn btn-ghost btn-sm">Refuser</button>
+            <button id="cookieAccept" class="btn btn-primary btn-sm">Accepter</button>
+        </div>
+    </div>
+
+    <script src="app.js?v=2.0.1"></script>
 </body>
 
 </html>
