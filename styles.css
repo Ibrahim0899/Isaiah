@@ -2059,17 +2059,35 @@ body {
   color: var(--accent-primary);
 }
 
-.hero-featured-cta {
+.hero-featured-cta,
+.hero-read-btn {
   display: inline-flex;
   align-items: center;
   gap: var(--space-xs);
   color: var(--accent-primary);
   font-weight: 500;
-  transition: gap var(--transition-fast);
+  transition: gap var(--transition-fast), transform var(--transition-fast);
 }
 
-.hero-featured-card:hover .hero-featured-cta {
+.hero-read-btn {
+  padding: var(--space-sm) var(--space-lg);
+  font-size: 0.9rem;
+}
+
+.hero-featured-card:hover .hero-featured-cta,
+.hero-featured-card:hover .hero-read-btn {
   gap: var(--space-sm);
+}
+
+.hero-read-btn:hover {
+  transform: scale(1.05);
+}
+
+/* Read button on writing cards */
+.card-read-btn {
+  padding: var(--space-xs) var(--space-md);
+  font-size: 0.85rem;
+  white-space: nowrap;
 }
 
 @media (max-width: 768px) {

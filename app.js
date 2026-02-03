@@ -1073,14 +1073,30 @@ const UI = {
       const writings = await Supabase.getAdminWritings();
 
       if (writings && writings.length > 0) {
+        // Store admin writings in state so visitors can read them
+        writings.forEach(w => {
+          if (!state.writings.find(sw => sw.id === w.id)) {
+            state.writings.push(w);
+          }
+        });
+
         // First 2 writings go in the hero section with special prominent cards
         const heroWritings = writings.slice(0, 2);
         heroFeaturedGrid.innerHTML = heroWritings.map((w, index) => this.createHeroFeaturedCard(w, index)).join('');
 
-        // Add click handlers for hero cards
+        // Add click handlers for hero cards and read buttons
         heroFeaturedGrid.querySelectorAll('.hero-featured-card').forEach(card => {
-          card.addEventListener('click', () => {
-            this.openReading(card.dataset.id);
+          card.addEventListener('click', (e) => {
+            // Prevent double triggering if button is clicked
+            if (!e.target.classList.contains('hero-read-btn')) {
+              this.openReading(card.dataset.id);
+            }
+          });
+        });
+        heroFeaturedGrid.querySelectorAll('.hero-read-btn').forEach(btn => {
+          btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            this.openReading(btn.dataset.id);
           });
         });
 
@@ -1092,8 +1108,16 @@ const UI = {
 
           // Add click handlers for featured writing cards
           featuredGrid.querySelectorAll('.writing-card').forEach(card => {
-            card.addEventListener('click', () => {
-              this.openReading(card.dataset.id);
+            card.addEventListener('click', (e) => {
+              if (!e.target.classList.contains('card-read-btn')) {
+                this.openReading(card.dataset.id);
+              }
+            });
+          });
+          featuredGrid.querySelectorAll('.card-read-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+              e.stopPropagation();
+              this.openReading(btn.dataset.id);
             });
           });
         } else {
@@ -1133,7 +1157,7 @@ const UI = {
         <p class="hero-featured-excerpt">${this.escapeHtml(writing.excerpt || '')}</p>
         <div class="hero-featured-meta">
           <span class="hero-featured-category">${CATEGORIES[writing.category]}</span>
-          <span class="hero-featured-cta">Lire →</span>
+          <button class="btn btn-primary hero-read-btn" data-id="${writing.id}">Lire →</button>
         </div>
       </article>
     `;
@@ -1153,7 +1177,7 @@ const UI = {
             <span class="author-avatar">${(writing.profiles?.display_name || writing.profiles?.username || 'A').charAt(0).toUpperCase()}</span>
             <span class="author-name">${this.escapeHtml(writing.profiles?.display_name || writing.profiles?.username || 'Anonyme')}</span>
           </div>
-          <span class="card-date">${this.formatDate(writing.created_at)}</span>
+          <button class="btn btn-sm btn-primary card-read-btn" data-id="${writing.id}">Lire</button>
         </div>
       </article>
     `;
