@@ -2059,8 +2059,7 @@ body {
   color: var(--accent-primary);
 }
 
-.hero-featured-cta,
-.hero-read-btn {
+.hero-featured-cta {
   display: inline-flex;
   align-items: center;
   gap: var(--space-xs);
@@ -2072,10 +2071,10 @@ body {
 .hero-read-btn {
   padding: var(--space-sm) var(--space-lg);
   font-size: 0.9rem;
+  /* Uses btn-primary colors - white text on accent background */
 }
 
-.hero-featured-card:hover .hero-featured-cta,
-.hero-featured-card:hover .hero-read-btn {
+.hero-featured-card:hover .hero-featured-cta {
   gap: var(--space-sm);
 }
 
