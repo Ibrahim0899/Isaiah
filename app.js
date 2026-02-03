@@ -497,6 +497,75 @@ const Subscriptions = {
 };
 
 // ========================================
+// Cookie Consent & Analytics
+// ========================================
+
+const CookieManager = {
+  GA_ID: 'G-Z7PLKRXZNQ',
+  GTM_ID: 'GTM-PWJ8KG43',
+  STORAGE_KEY: 'isaiah_cookie_consent',
+
+  init() {
+    const consent = localStorage.getItem(this.STORAGE_KEY);
+    const banner = document.getElementById('cookieBanner');
+
+    if (!consent) {
+      // Show banner if no choice made
+      if (banner) banner.classList.remove('hidden');
+    } else if (consent === 'granted') {
+      // Load analytics if previously granted
+      this.loadAnalytics();
+    }
+
+    // Event Listeners
+    document.getElementById('cookieAccept')?.addEventListener('click', () => this.accept());
+    document.getElementById('cookieRefuse')?.addEventListener('click', () => this.refuse());
+  },
+
+  accept() {
+    localStorage.setItem(this.STORAGE_KEY, 'granted');
+    document.getElementById('cookieBanner')?.classList.add('hidden');
+    this.loadAnalytics();
+    UI.toast('Cookies acceptés. Merci !', 'success');
+  },
+
+  refuse() {
+    localStorage.setItem(this.STORAGE_KEY, 'denied');
+    document.getElementById('cookieBanner')?.classList.add('hidden');
+    UI.toast('Cookies refusés.', 'default');
+  },
+
+  loadAnalytics() {
+    // Prevent duplicate loading
+    if (window.dataLayer || document.getElementById('ga-script')) return;
+
+    console.log('Loading Analytics...');
+
+    // Load GTM
+    (function (w, d, s, l, i) {
+      w[l] = w[l] || []; w[l].push({
+        'gtm.start':
+          new Date().getTime(), event: 'gtm.js'
+      }); var f = d.getElementsByTagName(s)[0],
+        j = d.createElement(s), dl = l != 'dataLayer' ? '&l=' + l : ''; j.async = true; j.src =
+          'https://www.googletagmanager.com/gtm.js?id=' + i + dl; f.parentNode.insertBefore(j, f);
+    })(window, document, 'script', 'dataLayer', this.GTM_ID);
+
+    // Load GA4 (gtag.js)
+    const script = document.createElement('script');
+    script.id = 'ga-script';
+    script.async = true;
+    script.src = `https://www.googletagmanager.com/gtag/js?id=${this.GA_ID}`;
+    document.head.appendChild(script);
+
+    window.dataLayer = window.dataLayer || [];
+    function gtag() { dataLayer.push(arguments); }
+    gtag('js', new Date());
+    gtag('config', this.GA_ID);
+  }
+};
+
+// ========================================
 // Authentication
 // ========================================
 
@@ -995,6 +1064,7 @@ const UI = {
 
   async renderLandingPage() {
     // Render featured writings (admin's)
+    const heroFeaturedGrid = document.getElementById('heroFeaturedWritings');
     const featuredGrid = document.getElementById('featuredWritings');
     const writersGrid = document.getElementById('writersGrid');
 
@@ -1003,8 +1073,36 @@ const UI = {
       const writings = await Supabase.getAdminWritings();
 
       if (writings && writings.length > 0) {
-        featuredGrid.innerHTML = writings.slice(0, 4).map(w => this.createWritingCard(w)).join('');
+        // First 2 writings go in the hero section with special prominent cards
+        const heroWritings = writings.slice(0, 2);
+        heroFeaturedGrid.innerHTML = heroWritings.map((w, index) => this.createHeroFeaturedCard(w, index)).join('');
+
+        // Add click handlers for hero cards
+        heroFeaturedGrid.querySelectorAll('.hero-featured-card').forEach(card => {
+          card.addEventListener('click', () => {
+            this.openReading(card.dataset.id);
+          });
+        });
+
+        // Remaining writings go in the "Découvrez plus d'écrits" section
+        const remainingWritings = writings.slice(2, 6);
+        if (remainingWritings.length > 0) {
+          featuredGrid.innerHTML = remainingWritings.map(w => this.createWritingCard(w)).join('');
+          document.getElementById('featuredSection').style.display = 'block';
+
+          // Add click handlers for featured writing cards
+          featuredGrid.querySelectorAll('.writing-card').forEach(card => {
+            card.addEventListener('click', () => {
+              this.openReading(card.dataset.id);
+            });
+          });
+        } else {
+          // Hide the section if no additional writings
+          document.getElementById('featuredSection').style.display = 'none';
+        }
       } else {
+        // Hide hero section if no writings
+        heroFeaturedGrid.innerHTML = '';
         featuredGrid.innerHTML = `
           <div class="feature-card" style="grid-column: 1/-1; text-align: center; padding: 3rem;">
             <div class="feature-icon">✨</div>
@@ -1024,6 +1122,41 @@ const UI = {
     } catch (e) {
       console.error('Error loading landing page:', e);
     }
+  },
+
+  createHeroFeaturedCard(writing, index) {
+    const labelText = index === 0 ? '✨ Dernier écrit' : '📖 À découvrir';
+    return `
+      <article class="hero-featured-card" data-id="${writing.id}" data-category="${writing.category}">
+        <div class="hero-featured-label">${labelText}</div>
+        <h3 class="hero-featured-title">${this.escapeHtml(writing.title)}</h3>
+        <p class="hero-featured-excerpt">${this.escapeHtml(writing.excerpt || '')}</p>
+        <div class="hero-featured-meta">
+          <span class="hero-featured-category">${CATEGORIES[writing.category]}</span>
+          <span class="hero-featured-cta">Lire →</span>
+        </div>
+      </article>
+    `;
+  },
+
+  createWritingCard(writing) {
+    return `
+      <article class="writing-card" data-id="${writing.id}" data-category="${writing.category}">
+        <div class="card-header">
+          <span class="card-category">${CATEGORIES[writing.category]}</span>
+          ${Auth.canEdit(writing) ? `<span class="card-visibility">${writing.visibility === 'public' ? '🌍' : '🔒'}</span>` : ''}
+        </div>
+        <h3 class="card-title">${this.escapeHtml(writing.title)}</h3>
+        <p class="card-excerpt">${this.escapeHtml(writing.excerpt || '')}</p>
+        <div class="card-footer">
+          <div class="card-author">
+            <span class="author-avatar">${(writing.profiles?.display_name || writing.profiles?.username || 'A').charAt(0).toUpperCase()}</span>
+            <span class="author-name">${this.escapeHtml(writing.profiles?.display_name || writing.profiles?.username || 'Anonyme')}</span>
+          </div>
+          <span class="card-date">${this.formatDate(writing.created_at)}</span>
+        </div>
+      </article>
+    `;
   },
 
   createWriterCard(writer) {
@@ -1771,6 +1904,7 @@ async function initializeApp() {
   Storage.loadLocal();
   await Auth.init();
   UI.updateAuthUI();
+  CookieManager.init();
   initializeEventListeners();
   Search.init();
 
