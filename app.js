@@ -122,7 +122,21 @@
           </header>
 
           <div class="writings-list">
-            ${matchingWritings.map(writing => renderWritingAccordion(writing, book.id)).join('')}
+            ${matchingWritings.length > 0 
+              ? matchingWritings.map(writing => renderWritingAccordion(writing, book.id)).join('')
+              : `
+                <div class="cover-card" style="padding: 2.5rem 1.5rem; text-align: center; border-style: dashed;">
+                  <div class="cover-ornament top">✦ ✦ ✦</div>
+                  <p style="font-family: var(--font-serif); font-size: 1.25rem; font-style: italic; color: var(--text-secondary); margin-bottom: 0.5rem;">
+                    Les pages de ce livre sont ouvertes et prêtes à être reliées...
+                  </p>
+                  <span style="font-family: var(--font-sans); font-size: 0.85rem; color: var(--text-muted); letter-spacing: 0.05em;">
+                    Les écrits d'Isaiah arrivent dans un instant.
+                  </span>
+                  <div class="cover-ornament bottom" style="margin-top: 1.2rem;">❦</div>
+                </div>
+              `
+            }
           </div>
         </section>
       `;
