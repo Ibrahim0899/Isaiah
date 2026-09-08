@@ -203,6 +203,7 @@
           
           <div class="header-main-info">
             <h3 class="text-title">${escapeHtml(writing.title)}</h3>
+            ${writing.subtitle ? `<div class="text-subtitle" style="font-family: var(--font-serif); font-size: 1.08rem; color: var(--accent-gold); font-style: italic; margin-top: -0.1rem; margin-bottom: 0.15rem;">${escapeHtml(writing.subtitle)}</div>` : ''}
             
             <!-- Le Résumé Énigmatique -->
             <div class="enigmatic-teaser-box">
