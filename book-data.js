@@ -177,6 +177,64 @@ C’est ici que commence la chute.
 
 
 ISAIAH`
+        },
+        {
+          id: "texte-1-4",
+          number: "IV",
+          title: "La Survie Artificielle",
+          subtitle: "Le masque. L’inertie. Le simulacre de vie.",
+          teaser: "« La survie est une paix factice, un cessez-le-feu intérieur. On apprend à porter l'absence comme un vêtement neutre. Rien ne saigne, mais rien ne vit. C’est ici que commence la vraie descente. »",
+          category: "Confidences & Vérité",
+          readTime: "3 min",
+          date: "La Survie",
+          content: `La Survie.
+
+Après la fracture, il y a la continuation.
+
+Pas la vie.
+La continuation.
+
+Le corps apprend vite. Il s’adapte. Il imite. Il reproduit les gestes attendus avec une précision presque admirable. Se lever. Répondre. Traverser les journées comme on traverse une pièce enfumée : les yeux mi-clos, en retenant sa respiration.
+
+La survie n’a rien d’héroïque.
+Elle est fonctionnelle.
+
+On parle quand il faut parler.
+On sourit quand le contexte l’exige.
+On rit parfois, même — réflexe étrange, presque choquant — comme si le visage avait mémorisé des mouvements indépendamment de ce qui se passe à l’intérieur.
+
+À l’intérieur, justement, il ne se passe plus grand-chose.
+Tout est ralenti.
+Comme si l’âme avait été placée en mode économie d’énergie.
+
+Les nuits sont longues, mais pas agitées. Elles sont plates. Denses. Sans rêves. Le sommeil ne repose pas ; il suspend. Et au réveil, la fatigue est intacte, soigneusement conservée.
+
+On apprend à porter l’absence comme un vêtement neutre. Ni trop voyant, ni trop léger. Juste assez pour ne pas inquiéter. Juste assez pour rester acceptable. La douleur devient présentable. Socialement compatible.
+
+C’est là que le piège se referme.
+
+Car à force de jouer le rôle, le rôle commence à jouer l’homme.
+On ne fait plus semblant d’exister.
+On existe par défaut.
+
+Le passé devient un territoire fermé, trop chargé pour être visité.
+Le futur, une hypothèse inutile.
+Alors on se replie dans un présent étroit, répétitif, sécurisé. Un présent sans aspérités, sans attentes, sans vertige.
+
+La survie est une paix factice.
+Un cessez-le-feu intérieur.
+
+Rien ne saigne.
+Mais rien ne vit.
+
+Et dans ce calme artificiel, quelque chose s’installe lentement :
+une fatigue plus profonde que la tristesse.
+Une lassitude d’être encore là.
+
+Sans le savoir, c’est ici que commence la vraie descente.
+
+
+ISAIAH`
         }
       ]
     }
