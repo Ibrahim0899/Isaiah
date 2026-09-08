@@ -235,6 +235,64 @@ Sans le savoir, c’est ici que commence la vraie descente.
 
 
 ISAIAH`
+        },
+        {
+          id: "texte-1-5",
+          number: "V",
+          title: "La Dissolution",
+          subtitle: "L'érosion intérieure et la perte de forme",
+          teaser: "« Rien n’explose : tout se défait. On ne tombe pas, on se défait. Et quand il ne reste plus de forme, une question silencieuse émerge : que peut-il encore disparaître, maintenant que tout s’efface déjà ? »",
+          category: "Méditation & Dépouillement",
+          readTime: "2 min",
+          date: "La Dissolution",
+          content: `La Dissolution
+
+La survie a ses limites.
+
+Ce qui est maintenu artificiellement finit toujours par céder. Pas d’un coup. Pas dans un fracas. Mais par fatigue structurelle. Comme une matière trop longtemps soumise à une pression invisible.
+
+D’abord, ce sont les repères qui se brouillent.
+Le temps perd sa texture. Les jours ne se distinguent plus vraiment. Ils s’empilent, identiques, interchangeables, comme s’ils avaient été produits en série.
+
+Puis vient l’érosion intérieure.
+
+Les pensées tournent sans direction, reviennent au même point, encore et encore, jusqu’à s’user d’elles-mêmes. Les émotions ne disparaissent pas ; elles se diluent. Trop faibles pour être ressenties clairement. Trop présentes pour être ignorées.
+
+Rien n’explose.
+Tout se défait.
+
+L’identité, elle aussi, commence à perdre sa cohérence. Les certitudes qui semblaient stables se révèlent fragiles. Les rôles deviennent étrangers. Les réactions habituelles paraissent mécaniques, presque observées de l’extérieur.
+
+Comme si quelque chose regardait tout cela se désagréger en silence.
+
+Le langage lui-même devient imprécis. Les mots existent, mais ils n’atteignent plus ce qu’ils devraient désigner. Nommer ne fixe rien. Décrire ne contient rien. Tout glisse.
+
+C’est une lente perte de forme.
+
+On ne tombe pas.
+On se défait.
+
+Les contours intérieurs deviennent flous. Les limites entre ce qui était stable et ce qui ne l’est plus cessent d’être perceptibles. Il n’y a plus vraiment de centre. Plus vraiment de périphérie. Seulement une diffusion progressive.
+
+Et dans cette diffusion, une sensation nouvelle apparaît.
+
+Pas la douleur.
+Pas la tristesse.
+Pas même le vide.
+
+Quelque chose de plus nu que tout cela.
+
+Une absence de structure.
+
+Comme si l’intérieur avait cessé d’être un lieu.
+Comme s’il n’y avait plus rien à maintenir, plus rien à protéger, plus rien à préserver.
+
+Seulement une désagrégation calme. Continue. Totale.
+
+Et quand il ne reste plus de forme, une question silencieuse émerge :
+que peut-il encore disparaître, maintenant que tout s’efface déjà ?
+
+Isaiah`
         }
       ]
     }
