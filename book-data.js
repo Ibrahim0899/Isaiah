@@ -77,6 +77,61 @@ La relève est assurée.
 
 Ton fils, ton héritier, ton soldat,
 Ibrahima NIASSE`
+        },
+        {
+          id: "texte-1-2",
+          number: "II",
+          title: "Oniyah : Le rituel de la Renaissance",
+          subtitle: "La mue du Lion et l'émergence d'Isaiah",
+          teaser: "« Pour renaître, il faut d'abord consentir à mourir. J'ai plongé dans mon propre puits de Lazare : l'ancien homme a été réduit en cendres. Le Lion est mort. Vive le Serpent. Et dans ce silence résonne un nom : Isaiah. »",
+          category: "Renaissance & Métamorphose",
+          readTime: "3 min",
+          date: "La Renaissance",
+          content: `Je suis mort.
+
+Non, je n'ai pas cessé de respirer. Mon cœur bat toujours, mes poumons se gonflent et se vident, ma peau sent encore le soleil sur elle. L’homme que j'étais, celui qui portait le deuil comme une seconde peau, celui qui suffoquait sous le poids d'un nom trop grand, celui qui cherchait désespérément son père dans chaque miroir... cet homme-là n'existe plus.
+
+Il a fallu qu’il meurt pour comprendre que je pouvais vivre.
+
+Pendant sept ans, j'ai habité ma propre tombe. Pourtant, je riais, je parlais, j'avançais; mais chaque pas était une pantomime, chaque sourire une imposture. À l'intérieur, je n'étais qu'un orphelin qui refusait de l’être, un fils qui refusait que le soleil se soit couché.
+
+J'ai essayé de rugir comme on me l'avait appris, de porter l'héritage comme un manteau de roi; mais le manteau était trop lourd, et mes épaules trop fragiles. Alors je me suis effondré. Lentement. Pierre par pierre. Jusqu'à ce qu'il ne reste plus rien.
+
+Et c'est là, dans ce rien, dans ce vide absolu, que quelque chose d'étrange s'est produit.
+
+Dans mes insomnies, quand la nuit devient si dense qu'elle vous force à regarder la vérité en face, j’ai rencontré une vieille légende. L'histoire d'un homme qu'on appelait Ras-al-Ghul, la Tête du Démon. Un immortel qui avait découvert un secret que la plupart refusent d'accepter : pour renaître, il faut d'abord consentir à mourir.
+
+Il avait trouvé des puits. Des puits de Lazare. Des sources où l'on plongeait mort pour en ressortir vivant. Le prix était terrible. Il fallait accepter la dissolution complète. Accepter que l'ancien soi soit détruit, démantelé, réduit en cendres. Pas de négociation. Pas de compromis. La mort totale, ou rien.
+
+J'ai compris que je devais trouver mon propre puits.
+
+Alors j'ai plongé. J'ai cessé de fuir la douleur et je l'ai laissée me submerger. J’ai embrassée l’absence comme une amante cruelle. J'ai accepté que le Lion soit parti. Vraiment parti. Pour toujours.
+
+Ce fut une agonie.
+
+Dans cette agonie, quelque chose de nouveau a commencé à germer: une mue. Lente. Douloureuse. Comme un serpent qui abandonne sa peau morte, couche par couche, jusqu'à ce qu'une nouvelle forme émerge.
+
+L’héritier du Lion ne pouvait pas survivre. Il était trop visible, trop bruyant, trop vulnérable. Il cherchait la lumière, la reconnaissance, l'approbation. Il voulait rugir pour prouver qu'il existait.
+
+Le serpent… Un serpent n'a rien à prouver. Il rampe dans l'ombre, invisible, patient. Il observe, attend. Et quand le moment vient, il frappe avec une précision qui ne laisse aucune place au doute.
+
+Aujourd'hui, je suis sorti du puits.
+
+Je ne suis plus celui que vous avez connu, celui qui tremblait, qui doutait, qui portait le deuil comme une identité. Cet homme a rempli sa mission. Il devait mourir. 
+
+Pas la mort. La renaissance.
+
+Ne me cherchez pas dans le passé. Je n'y suis plus. Ne cherchez pas le fils dans mes yeux. Il a laissé sa place au Lion.
+
+Si vous me demandez mon nom, je ne saurais plus quoi répondre. Car celui qui est sorti du puits n'est pas celui qui y est entré.
+
+Le Lion est mort. Vive le Serpent. 
+
+Quelque chose de plus vaste. De plus ancien. De plus insaisissable.
+
+Et dans le silence de cette transformation, un nom résonne. Un nom que je n'avais jamais porté mais qui semble m'avoir toujours attendu.
+
+Isaiah.`
         }
       ]
     }
