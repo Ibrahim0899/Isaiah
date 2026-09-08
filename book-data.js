@@ -132,6 +132,51 @@ Quelque chose de plus vaste. De plus ancien. De plus insaisissable.
 Et dans le silence de cette transformation, un nom résonne. Un nom que je n'avais jamais porté mais qui semble m'avoir toujours attendu.
 
 Isaiah.`
+        },
+        {
+          id: "texte-1-3",
+          number: "III",
+          title: "Le Déclencheur : les effets de la MORT",
+          subtitle: "L'absence comme présence froide et désaxement",
+          teaser: "« La mort n’est pas un vide : c’est une présence froide. Elle ne tue pas immédiatement, elle désaxe. Et dans ce désaxement silencieux, quelque chose s’éteint. Pas dans un cri, mais dans un retrait. C’est ici que commence la chute. »",
+          category: "Méditation & Abîme",
+          readTime: "2 min",
+          date: "Le Déclencheur",
+          content: `La mort ne prévient pas.
+Elle ne s’annonce pas.
+Elle s’installe.
+
+Elle arrive comme une baisse soudaine de température. D’abord imperceptible. Puis constante. Puis irréversible. Quelque chose cesse de vibrer, sans bruit, sans drame, et tout ce qui reste continue à fonctionner par inertie.
+
+Il y a un moment précis où l’existence se fissure.
+Pas au moment de la chute.
+Mais après.
+Quand on réalise que plus rien ne tient ensemble.
+
+Le monde, lui, ne s’interrompt pas. Il persiste, implacable. Les jours se succèdent avec la même régularité indécente. Les corps parlent, mangent, rient. Et au milieu de ce mouvement, une absence devient centrale. Dense. Structurante.
+
+La mort n’est pas un vide.
+C’est une présence froide.
+
+Elle s’insinue dans les gestes les plus simples. Elle ralentit les pensées. Elle éteint la projection. L’avenir devient une surface opaque, sans perspective, sans profondeur. Avancer n’est plus un choix, seulement un automatisme.
+
+Ce qui disparaît alors, ce n’est pas quelqu’un.
+C’est une orientation.
+
+Quand le point d’appui s’effondre, l’identité elle-même se met à flotter. On continue d’exister, mais hors de soi. Comme si la conscience avait pris un pas de recul, observant un corps qui avance sans savoir pourquoi.
+
+La mort fait cela.
+Elle ne tue pas immédiatement.
+Elle désaxe.
+
+Et dans ce désaxement silencieux, quelque chose s’éteint.
+Pas dans un cri.
+Dans un retrait.
+
+C’est ici que commence la chute.
+
+
+ISAIAH`
         }
       ]
     }
