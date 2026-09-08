@@ -567,6 +567,84 @@ button {
 }
 
 /* ==========================================================================
+   Bannière de Partie & Prologue Littéraire
+   ========================================================================== */
+
+.part-section-divider {
+  margin: 3.2rem 0 1.5rem;
+  padding: 1.6rem 2rem;
+  background: var(--bg-card);
+  border-left: 4px solid var(--accent-gold);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-subtle);
+  border-top: 1px solid var(--border-delicate);
+  border-right: 1px solid var(--border-delicate);
+  border-bottom: 1px solid var(--border-delicate);
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  transition: var(--transition-smooth);
+}
+
+.part-section-divider:first-of-type {
+  margin-top: 0.5rem;
+}
+
+.part-badge-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.2rem;
+}
+
+.part-badge {
+  font-family: var(--font-display);
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--accent-gold);
+}
+
+.part-count {
+  font-family: var(--font-sans);
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+.part-title {
+  font-family: var(--font-display);
+  font-size: 1.65rem;
+  font-weight: 700;
+  color: var(--text-ink);
+  letter-spacing: 0.04em;
+  line-height: 1.25;
+}
+
+.part-subtitle {
+  font-family: var(--font-serif);
+  font-size: 1.1rem;
+  color: var(--text-secondary);
+  font-style: italic;
+  line-height: 1.5;
+}
+
+.part-function-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: 0.4rem;
+  font-family: var(--font-sans);
+  font-size: 0.76rem;
+  font-weight: 500;
+  color: var(--accent-gold);
+  background: var(--accent-gold-light);
+  padding: 0.25rem 0.65rem;
+  border-radius: 12px;
+  width: fit-content;
+}
+
+/* ==========================================================================
    Le Déroulé Littéraire (Accordéon Dépliable)
    ========================================================================== */
 

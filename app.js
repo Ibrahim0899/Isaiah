@@ -76,6 +76,17 @@
     DOM.bookNav.innerHTML = navHtml;
   }
 
+  function matchesQuery(w, query) {
+    if (!query) return true;
+    return (
+      (w.title && w.title.toLowerCase().includes(query)) ||
+      (w.subtitle && w.subtitle.toLowerCase().includes(query)) ||
+      (w.teaser && w.teaser.toLowerCase().includes(query)) ||
+      (w.content && w.content.toLowerCase().includes(query)) ||
+      (w.category && w.category.toLowerCase().includes(query))
+    );
+  }
+
   // ==========================================================================
   // Rendu Principal des Livres et Déroulés
   // ==========================================================================
@@ -92,38 +103,56 @@
       : config.books.filter(b => b.id === State.activeBook);
 
     booksToRender.forEach(book => {
-      // Filtrage par recherche
-      const matchingWritings = book.writings.filter(w => {
-        if (!query) return true;
-        return (
-          w.title.toLowerCase().includes(query) ||
-          w.teaser.toLowerCase().includes(query) ||
-          w.content.toLowerCase().includes(query) ||
-          (w.category && w.category.toLowerCase().includes(query))
-        );
-      });
+      // Récupérer l'ensemble des écrits du livre (via parts ou writings)
+      let allWritings = [];
+      if (book.parts && Array.isArray(book.parts)) {
+        book.parts.forEach(part => {
+          allWritings = allWritings.concat(part.writings || []);
+        });
+      } else if (book.writings && Array.isArray(book.writings)) {
+        allWritings = book.writings;
+      }
 
-      if (matchingWritings.length === 0 && query) {
+      // Filtrage par recherche
+      const bookMatchingWritings = allWritings.filter(w => matchesQuery(w, query));
+
+      if (bookMatchingWritings.length === 0 && query) {
         return; // Masquer ce livre si aucun écrit ne correspond à la recherche
       }
 
-      totalMatches += matchingWritings.length;
+      totalMatches += bookMatchingWritings.length;
 
-      containerHtml += `
-        <section class="book-section" id="${escapeHtml(book.id)}">
-          <header class="book-section-header">
-            <div class="book-badge-row">
-              <span class="book-roman-badge">${escapeHtml(book.number)} • ${escapeHtml(book.roman)}</span>
-              <span class="book-count-badge">${matchingWritings.length} texte${matchingWritings.length > 1 ? 's' : ''}</span>
+      let bookContentHtml = '';
+
+      if (book.parts && Array.isArray(book.parts)) {
+        book.parts.forEach(part => {
+          const matchingPartWritings = (part.writings || []).filter(w => matchesQuery(w, query));
+          if (matchingPartWritings.length === 0 && query) return;
+
+          bookContentHtml += `
+            <div class="part-section-divider" id="${escapeHtml(part.id)}">
+              <div class="part-badge-row">
+                <span class="part-badge">${escapeHtml(part.badge)}</span>
+                <span class="part-count">${matchingPartWritings.length} texte${matchingPartWritings.length > 1 ? 's' : ''}</span>
+              </div>
+              <h3 class="part-title">${escapeHtml(part.title)}</h3>
+              ${part.subtitle ? `<p class="part-subtitle">${escapeHtml(part.subtitle)}</p>` : ''}
+              ${part.functionNote ? `<div class="part-function-badge"><span>✦</span> ${escapeHtml(part.functionNote)}</div>` : ''}
             </div>
-            <h2 class="book-main-title">${escapeHtml(book.title)}</h2>
-            <p class="book-subtitle">${escapeHtml(book.subtitle)}</p>
-            ${book.epigraph ? `<blockquote class="book-epigraph">${escapeHtml(book.epigraph)}</blockquote>` : ''}
-          </header>
 
+            <div class="writings-list" style="margin-bottom: 2.2rem;">
+              ${matchingPartWritings.length > 0
+                ? matchingPartWritings.map(writing => renderWritingAccordion(writing, book.id)).join('')
+                : ''
+              }
+            </div>
+          `;
+        });
+      } else {
+        bookContentHtml = `
           <div class="writings-list">
-            ${matchingWritings.length > 0 
-              ? matchingWritings.map(writing => renderWritingAccordion(writing, book.id)).join('')
+            ${bookMatchingWritings.length > 0 
+              ? bookMatchingWritings.map(writing => renderWritingAccordion(writing, book.id)).join('')
               : `
                 <div class="cover-card" style="padding: 2.5rem 1.5rem; text-align: center; border-style: dashed;">
                   <div class="cover-ornament top">✦ ✦ ✦</div>
@@ -138,6 +167,22 @@
               `
             }
           </div>
+        `;
+      }
+
+      containerHtml += `
+        <section class="book-section" id="${escapeHtml(book.id)}">
+          <header class="book-section-header">
+            <div class="book-badge-row">
+              <span class="book-roman-badge">${escapeHtml(book.number)} • ${escapeHtml(book.roman)}</span>
+              <span class="book-count-badge">${bookMatchingWritings.length} texte${bookMatchingWritings.length > 1 ? 's' : ''}</span>
+            </div>
+            <h2 class="book-main-title">${escapeHtml(book.title)}</h2>
+            <p class="book-subtitle">${escapeHtml(book.subtitle)}</p>
+            ${book.epigraph ? `<blockquote class="book-epigraph">${escapeHtml(book.epigraph)}</blockquote>` : ''}
+          </header>
+
+          ${bookContentHtml}
         </section>
       `;
     });

@@ -1,6 +1,6 @@
 /**
  * Les Réflexions et Confidences d'Isaiah — Données Littéraires
- * Recueils, chapitres et textes avec résumés énigmatiques
+ * Recueils, parties, chapitres et textes avec résumés énigmatiques
  */
 
 window.BOOK_CONFIG = {
@@ -19,21 +19,29 @@ window.BOOK_CONFIG = {
       id: "livre-1",
       roman: "I",
       number: "Livre I",
-      title: "La Croisée des Chemins",
-      subtitle: "Les réflexions et confidences d'Isaiah",
-      theme: "Mémoire, Héritage & Renaissance",
-      epigraph: "« Un Lion n'élève pas un agneau pour qu'il bêle de douleur : il élève un lionceau pour qu'il apprenne à rugir à son tour. »",
-      writings: [
+      title: "La Croisée des Chemins : La Renaissance",
+      subtitle: "Du deuil du Lion à la traversée de la nuit intérieure",
+      theme: "Prologue & Partie I : La Mort",
+      epigraph: "« Aujourd’hui, je cesse de subir ta mort pour commencer à honorer ta vie. »",
+      
+      parts: [
         {
-          id: "texte-1-1",
-          number: "I",
-          title: "Comment accepter de dire au revoir à un si grand homme ?",
-          subtitle: "L’Ombre, le Linceul et l’Aube : Mon Chemin vers Oniyah",
-          teaser: "« Comment célébrer ma naissance quand la terre est encore humide de ton départ ? Le 7 décembre t'a emporté, le 8 m'a vu naître. Mais la douleur a muté en carburant : un Lion n'élève pas un agneau pour qu'il pleure, il élève un lionceau pour qu'il rugisse. »",
-          category: "Témoignage & Serment",
-          readTime: "4 min",
-          date: "8 Décembre",
-          content: `L’Ombre, le Linceul et l’Aube : Mon Chemin vers Oniyah
+          id: "part-prologue",
+          badge: "PROLOGUE",
+          title: "L’Ombre, le Linceul et l’Aube : Mon Chemin vers Oniyah",
+          subtitle: "Le point de départ de tout : la perte, le deuil, l'héritage et le passage du fils vers l'héritier.",
+          functionNote: "Prologue Émotionnel",
+          writings: [
+            {
+              id: "texte-prologue",
+              number: "Prologue",
+              title: "Comment accepter de dire au revoir à un si grand homme ?",
+              subtitle: "L’Ombre, le Linceul et l’Aube : Mon Chemin vers Oniyah",
+              teaser: "« Aujourd’hui, je cesse de subir ta mort pour commencer à honorer ta vie. Le 7 décembre t'a emporté, le 8 m'a vu naître. Mais la douleur a muté en carburant : un Lion n'élève pas un agneau pour qu'il pleure, il élève un lionceau pour qu'il rugisse. »",
+              category: "Prologue & Serment",
+              readTime: "4 min",
+              date: "8 Décembre",
+              content: `L’Ombre, le Linceul et l’Aube : Mon Chemin vers Oniyah
 
 Comment ?
 Dites-moi, comment accepter de dire au revoir à un titan ?
@@ -77,17 +85,26 @@ La relève est assurée.
 
 Ton fils, ton héritier, ton soldat,
 Ibrahima NIASSE`
+            }
+          ]
         },
         {
-          id: "texte-1-2",
-          number: "II",
-          title: "Oniyah : Le rituel de la Renaissance",
-          subtitle: "La mue du Lion et l'émergence d'Isaiah",
-          teaser: "« Pour renaître, il faut d'abord consentir à mourir. J'ai plongé dans mon propre puits de Lazare : l'ancien homme a été réduit en cendres. Le Lion est mort. Vive le Serpent. Et dans ce silence résonne un nom : Isaiah. »",
-          category: "Renaissance & Métamorphose",
-          readTime: "3 min",
-          date: "La Renaissance",
-          content: `Je suis mort.
+          id: "part-1",
+          badge: "PARTIE I",
+          title: "LA MORT",
+          subtitle: "« Une partie de moi doit mourir. » — De la tombe intérieure à la dissolution totale : la descente vers le point zéro.",
+          functionNote: "La mort de l'ancien soi & la descente",
+          writings: [
+            {
+              id: "texte-1-1",
+              number: "1",
+              title: "Oniyah : Le rituel de la Renaissance",
+              subtitle: "La tombe intérieure, le puits de Lazare et la mue",
+              teaser: "« « Le Lion est mort. Vive le Serpent. » Pour renaître, il faut d'abord consentir à mourir. J'ai plongé dans mon propre puits de Lazare : l'ancien soi a été réduit en cendres. Et dans le silence de cette transformation résonne un nom : Isaiah. »",
+              category: "La Mort Intérieure",
+              readTime: "3 min",
+              date: "La Renaissance",
+              content: `Je suis mort.
 
 Non, je n'ai pas cessé de respirer. Mon cœur bat toujours, mes poumons se gonflent et se vident, ma peau sent encore le soleil sur elle. L’homme que j'étais, celui qui portait le deuil comme une seconde peau, celui qui suffoquait sous le poids d'un nom trop grand, celui qui cherchait désespérément son père dans chaque miroir... cet homme-là n'existe plus.
 
@@ -132,17 +149,17 @@ Quelque chose de plus vaste. De plus ancien. De plus insaisissable.
 Et dans le silence de cette transformation, un nom résonne. Un nom que je n'avais jamais porté mais qui semble m'avoir toujours attendu.
 
 Isaiah.`
-        },
-        {
-          id: "texte-1-3",
-          number: "III",
-          title: "Le Déclencheur : les effets de la MORT",
-          subtitle: "L'absence comme présence froide et désaxement",
-          teaser: "« La mort n’est pas un vide : c’est une présence froide. Elle ne tue pas immédiatement, elle désaxe. Et dans ce désaxement silencieux, quelque chose s’éteint. Pas dans un cri, mais dans un retrait. C’est ici que commence la chute. »",
-          category: "Méditation & Abîme",
-          readTime: "2 min",
-          date: "Le Déclencheur",
-          content: `La mort ne prévient pas.
+            },
+            {
+              id: "texte-1-2",
+              number: "2",
+              title: "Le Déclencheur",
+              subtitle: "Les effets de la MORT : l'onde de choc et le désaxement",
+              teaser: "« « La mort ne tue pas immédiatement. Elle désaxe. C’est ici que commence la chute. » La mort n’est pas un vide : c’est une présence froide. Ce qui disparaît alors, ce n'est pas quelqu'un, c'est une orientation. »",
+              category: "La Fissure",
+              readTime: "2 min",
+              date: "Le Déclencheur",
+              content: `La mort ne prévient pas.
 Elle ne s’annonce pas.
 Elle s’installe.
 
@@ -177,17 +194,17 @@ C’est ici que commence la chute.
 
 
 ISAIAH`
-        },
-        {
-          id: "texte-1-4",
-          number: "IV",
-          title: "La Survie Artificielle",
-          subtitle: "Le masque. L’inertie. Le simulacre de vie.",
-          teaser: "« La survie est une paix factice, un cessez-le-feu intérieur. On apprend à porter l'absence comme un vêtement neutre. Rien ne saigne, mais rien ne vit. C’est ici que commence la vraie descente. »",
-          category: "Confidences & Vérité",
-          readTime: "3 min",
-          date: "La Survie",
-          content: `La Survie.
+            },
+            {
+              id: "texte-1-3",
+              number: "3",
+              title: "La Survie",
+              subtitle: "Le masque. L’inertie. Le simulacre de vie.",
+              teaser: "« « La survie est une paix factice. Un cessez-le-feu intérieur. » Après la fracture, il y a la continuation. Pas la vie : la continuation. Rien ne saigne, mais rien ne vit. Sans le savoir, c'est ici que commence la vraie descente. »",
+              category: "Le Simulacre",
+              readTime: "3 min",
+              date: "La Survie",
+              content: `La Survie.
 
 Après la fracture, il y a la continuation.
 
@@ -235,17 +252,17 @@ Sans le savoir, c’est ici que commence la vraie descente.
 
 
 ISAIAH`
-        },
-        {
-          id: "texte-1-5",
-          number: "V",
-          title: "La Dissolution",
-          subtitle: "L'érosion intérieure et la perte de forme",
-          teaser: "« Rien n’explose : tout se défait. On ne tombe pas, on se défait. Et quand il ne reste plus de forme, une question silencieuse émerge : que peut-il encore disparaître, maintenant que tout s’efface déjà ? »",
-          category: "Méditation & Dépouillement",
-          readTime: "2 min",
-          date: "La Dissolution",
-          content: `La Dissolution
+            },
+            {
+              id: "texte-1-4",
+              number: "4",
+              title: "La Dissolution",
+              subtitle: "L'érosion intérieure & l'arrivée au point zéro",
+              teaser: "« « On ne tombe plus. On se défait. » Tout se désagrège en silence. Et quand il ne reste plus de forme, une question silencieuse émerge : que peut-il encore disparaître, maintenant que tout s’efface déjà ? »",
+              category: "Le Point Zéro",
+              readTime: "2 min",
+              date: "La Dissolution",
+              content: `La Dissolution
 
 La survie a ses limites.
 
@@ -293,6 +310,8 @@ Et quand il ne reste plus de forme, une question silencieuse émerge :
 que peut-il encore disparaître, maintenant que tout s’efface déjà ?
 
 Isaiah`
+            }
+          ]
         }
       ]
     }
