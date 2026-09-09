@@ -415,18 +415,21 @@ button {
 }
 
 .cover-emblem {
-  width: 105px;
-  height: 105px;
+  width: 100%;
+  max-width: 290px;
+  height: auto;
+  aspect-ratio: 1 / 1;
   object-fit: cover;
-  border-radius: 50%;
-  border: 3px solid var(--border-accent);
-  box-shadow: 0 6px 20px var(--accent-gold-glow);
-  filter: contrast(1.05);
-  transition: transform 0.4s ease;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-accent);
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.22), 0 4px 12px rgba(0, 0, 0, 0.12);
+  transition: transform 0.4s ease, box-shadow 0.4s ease;
+  display: inline-block;
 }
 
 .cover-emblem:hover {
-  transform: scale(1.04);
+  transform: translateY(-4px) scale(1.02);
+  box-shadow: 0 20px 44px rgba(0, 0, 0, 0.28), 0 6px 16px rgba(0, 0, 0, 0.16);
 }
 
 .cover-tagline {
@@ -1110,6 +1113,11 @@ button {
 
   .cover-card {
     padding: 2.2rem 1.2rem;
+  }
+
+  .cover-emblem {
+    max-width: 220px;
+    border-radius: 10px;
   }
 
   .cover-title {

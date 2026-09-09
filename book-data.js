@@ -8,7 +8,7 @@ window.BOOK_CONFIG = {
     title: "Les Réflexions & Confidences d'Isaiah",
     tagline: "Dis-le. Guéris.",
     author: "Ibrahim Isaiah NIASS",
-    coverImage: "affiche_oniyah_minimal.png",
+    coverImage: "couverture.png",
     epigraph: "« Il y a des paroles qui ne demandent pas à être entendues par la foule, mais reconnues par une âme. Voici ce qui fut tu trop longtemps. »",
     edition: "Édition Numérique pour les Visiteurs",
     year: "2025 - 2026"
