@@ -280,7 +280,13 @@
               <div class="reading-ornament-divider">✦ &nbsp; ❦ &nbsp; ✦</div>
               
               <div class="reading-prose">
-                ${paragraphs.map(para => `<p>${escapeHtml(para).replace(/\n/g, '<br>')}</p>`).join('')}
+                ${paragraphs.map(para => {
+                  const trimmed = para.trim();
+                  const isSignature = /^(Ton fils|Isaiah|Ibrahima NIASSE)/i.test(trimmed);
+                  const isShortLine = trimmed.length < 50 && !trimmed.includes('\n');
+                  const pClass = isSignature ? 'reading-signature' : (isShortLine ? 'prose-p prose-short' : 'prose-p');
+                  return `<p class="${pClass}">${escapeHtml(para).replace(/\n/g, '<br>')}</p>`;
+                }).join('')}
               </div>
 
               <footer class="reading-footer">

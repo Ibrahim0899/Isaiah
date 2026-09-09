@@ -876,22 +876,47 @@ button {
   font-size: var(--body-size);
   line-height: var(--body-line-height);
   color: var(--text-ink);
-  white-space: pre-line;
 }
 
 .reading-prose p {
-  margin-bottom: 1.4rem;
+  margin-bottom: 1.45rem;
+  text-align: justify;
+  text-justify: inter-word;
+  hyphens: auto;
 }
 
-/* Lettrine d'introduction (style grand papier) */
-.reading-prose::first-letter {
+/* Indentation littéraire élégante des paragraphes de récit */
+.reading-prose p.prose-p + p.prose-p:not(.prose-short):not(.reading-signature) {
+  text-indent: 1.6rem;
+}
+
+.reading-prose p.prose-short {
+  text-indent: 0 !important;
+}
+
+/* Lettrine d'introduction (style grand papier) sur le premier paragraphe */
+.reading-prose > p:first-of-type::first-letter {
   font-family: var(--font-display);
-  font-size: 3.4em;
+  font-size: 3.1em;
   float: left;
-  line-height: 0.85;
-  margin: 0.08em 0.15em 0 0;
+  line-height: 0.82;
+  margin: 0.05em 0.15em 0 0;
   color: var(--accent-gold);
   font-weight: 700;
+}
+
+/* Signature littéraire de fin d'écrit */
+.reading-signature {
+  text-align: right !important;
+  text-indent: 0 !important;
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  font-style: italic;
+  color: var(--accent-gold);
+  margin-top: 2.2rem !important;
+  margin-bottom: 0.5rem !important;
+  line-height: 1.6;
+  letter-spacing: 0.02em;
 }
 
 /* Pied de lecture du texte */
@@ -1011,9 +1036,25 @@ button {
    ========================================================================== */
 
 @media (max-width: 768px) {
+  /* En-tête compact sur mobile */
   .reader-header-inner {
     flex-wrap: wrap;
-    padding: 0.6rem 1rem;
+    padding: 0.45rem 0.85rem;
+    gap: 0.4rem;
+  }
+
+  .brand-glyph {
+    width: 20px;
+    height: 20px;
+  }
+
+  .brand-title {
+    font-size: 0.95rem;
+    letter-spacing: 0.02em;
+  }
+
+  .brand-author {
+    font-size: 0.62rem;
   }
 
   .book-tabs {
@@ -1021,26 +1062,97 @@ button {
     width: 100%;
     overflow-x: auto;
     justify-content: flex-start;
-    padding: 0.3rem;
+    padding: 0.15rem 0.25rem;
+    gap: 0.25rem;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .book-tab {
+    font-size: 0.75rem;
+    padding: 0.25rem 0.65rem;
+  }
+
+  .reading-controls {
+    gap: 0.35rem;
+  }
+
+  .control-btn {
+    width: 32px;
+    height: 32px;
+  }
+
+  .control-btn svg {
+    width: 15px;
+    height: 15px;
+  }
+
+  .toggle-all-btn .btn-tooltip {
+    display: none;
+  }
+
+  .font-controls {
+    padding: 0.1rem 0.2rem;
+  }
+
+  .font-label {
+    display: none;
+  }
+
+  .font-btn {
+    font-size: 0.72rem;
+    padding: 0.15rem 0.35rem;
+  }
+
+  /* Couverture */
+  .reader-canvas {
+    padding: 1.5rem 0.85rem 4rem;
   }
 
   .cover-card {
-    padding: 2.2rem 1.4rem;
+    padding: 2.2rem 1.2rem;
   }
 
   .cover-title {
-    font-size: 2.1rem;
+    font-size: 1.95rem;
   }
 
-  .cover-guide {
-    border-radius: var(--radius-md);
-    text-align: left;
+  .cover-epigraph {
+    padding: 1rem 1.1rem;
   }
 
+  .epigraph-text {
+    font-size: 1.05rem;
+  }
+
+  /* Bannières de Partie sur mobile */
+  .part-section-divider {
+    margin: 2.2rem 0 1.2rem;
+    padding: 1.2rem 1rem;
+  }
+
+  .part-title {
+    font-size: 1.35rem;
+  }
+
+  .part-subtitle {
+    font-size: 0.98rem;
+  }
+
+  /* Accordéons sur mobile */
   .accordion-header {
     grid-template-columns: auto 1fr;
-    padding: 1.1rem 1rem;
-    gap: 0.8rem;
+    padding: 1.1rem 0.95rem;
+    gap: 0.75rem;
+  }
+
+  .chapter-numeral {
+    font-size: 1.15rem;
+    min-width: 24px;
+  }
+
+  .text-title {
+    font-size: 1.28rem;
+    line-height: 1.3;
   }
 
   .header-meta-actions {
@@ -1052,11 +1164,43 @@ button {
     margin-top: 0.4rem;
   }
 
+  .enigmatic-teaser-box {
+    padding: 0.55rem 0.75rem;
+  }
+
+  .teaser-text {
+    font-size: 0.95rem;
+    line-height: 1.48;
+  }
+
+  /* Rendu de la lecture sur mobile : alignement naturel et sans césure excessive */
   .reading-body {
-    padding: 1.5rem 1.2rem 1.8rem;
+    padding: 1.2rem 0.85rem 1.6rem;
+  }
+
+  .reading-prose p {
+    text-align: left;
+    line-height: 1.76;
+    margin-bottom: 1.25rem;
+  }
+
+  .reading-prose p.prose-p + p.prose-p:not(.prose-short):not(.reading-signature) {
+    text-indent: 1.1rem;
+  }
+
+  .reading-prose > p:first-of-type::first-letter {
+    font-size: 2.6em;
+    line-height: 0.84;
+    margin: 0.04em 0.12em 0 0;
+  }
+
+  .reading-signature {
+    text-align: right !important;
+    font-size: 1.05rem;
+    margin-top: 1.6rem !important;
   }
 
   .book-main-title {
-    font-size: 1.7rem;
+    font-size: 1.65rem;
   }
 }

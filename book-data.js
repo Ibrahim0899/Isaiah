@@ -41,9 +41,7 @@ window.BOOK_CONFIG = {
               category: "Prologue & Serment",
               readTime: "4 min",
               date: "8 Décembre",
-              content: `L’Ombre, le Linceul et l’Aube : Mon Chemin vers Oniyah
-
-Comment ?
+              content: `Comment ?
 Dites-moi, comment accepter de dire au revoir à un titan ?
 Comment regarder le soleil se coucher définitivement sur l’homme qui a éclairé chaque recoin de mon existence ?
 
@@ -92,7 +90,7 @@ Ibrahima NIASSE`
           id: "part-1",
           badge: "PARTIE I",
           title: "LA MORT",
-          subtitle: "« Une partie de moi doit mourir. » — De la tombe intérieure à la dissolution totale : la descente vers le point zéro.",
+          subtitle: "« Une partie de moi doit mourir. » : de la tombe intérieure à la dissolution totale, la descente vers le point zéro.",
           functionNote: "La mort de l'ancien soi & la descente",
           writings: [
             {
@@ -218,7 +216,7 @@ Elle est fonctionnelle.
 
 On parle quand il faut parler.
 On sourit quand le contexte l’exige.
-On rit parfois, même — réflexe étrange, presque choquant — comme si le visage avait mémorisé des mouvements indépendamment de ce qui se passe à l’intérieur.
+On rit parfois, même (réflexe étrange, presque choquant), comme si le visage avait mémorisé des mouvements indépendamment de ce qui se passe à l’intérieur.
 
 À l’intérieur, justement, il ne se passe plus grand-chose.
 Tout est ralenti.
