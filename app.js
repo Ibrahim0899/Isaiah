@@ -192,7 +192,7 @@
         <div class="cover-card" style="margin-top: 2rem; text-align: center;">
           <div class="cover-ornament top">✦ ✦ ✦</div>
           <p style="font-size: 1.25rem; font-style: italic; color: var(--text-secondary); margin-bottom: 1rem;">
-            Aucun écrit ou énigme ne correspond à « <strong>${escapeHtml(query)}</strong> ».
+            Aucun écrit ne correspond à « <strong>${escapeHtml(query)}</strong> ».
           </p>
           <button class="book-tab active" id="resetSearchBtn" style="margin: 0 auto;">
             Effacer la recherche
@@ -250,10 +250,10 @@
             <h3 class="text-title">${escapeHtml(writing.title)}</h3>
             ${writing.subtitle ? `<div class="text-subtitle" style="font-family: var(--font-serif); font-size: 1.08rem; color: var(--accent-gold); font-style: italic; margin-top: -0.1rem; margin-bottom: 0.15rem;">${escapeHtml(writing.subtitle)}</div>` : ''}
             
-            <!-- Le Résumé Énigmatique -->
+            <!-- Le Résumé -->
             <div class="enigmatic-teaser-box">
               <span class="teaser-label">
-                <span class="teaser-label-glyph">✦</span> Résumé Énigmatique
+                <span class="teaser-label-glyph">✦</span> Résumé
               </span>
               <p class="teaser-text">${escapeHtml(writing.teaser)}</p>
             </div>
