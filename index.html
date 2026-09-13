@@ -35,7 +35,7 @@
         rel="stylesheet">
 
     <!-- Stylesheet with Cache Busting -->
-    <link rel="stylesheet" href="styles.css?v=3.6.0">
+    <link rel="stylesheet" href="styles.css?v=3.7.0">
 </head>
 
 <body>
@@ -156,6 +156,11 @@
                 <br>
                 <span class="footer-sub">Tous droits réservés. Espace dédié à la lecture contemplative.</span>
             </p>
+            <div class="footer-privacy-wrap">
+                <button type="button" class="footer-cookie-link" id="openCookieSettings">
+                    <span class="footer-cookie-glyph">✦</span> Gestion des cookies &amp; confidentialité
+                </button>
+            </div>
             <div class="footer-action">
                 <a href="#cover" class="back-to-cover-btn">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -167,8 +172,27 @@
         </footer>
     </main>
 
+    <!-- Bandeau de Consentement Cookies (RGPD / CNIL) -->
+    <aside class="cookie-banner hidden" id="cookieBanner" role="dialog" aria-modal="false" aria-label="Gestion des cookies et confidentialité">
+        <div class="cookie-banner-inner">
+            <div class="cookie-content">
+                <div class="cookie-header">
+                    <span class="cookie-emblem">✦</span>
+                    <h3 class="cookie-title">Confidentialité &amp; Mesure d'audience</h3>
+                </div>
+                <p class="cookie-text">
+                    Afin d'adapter l'expérience de lecture et de savoir quels écrits résonnent avec nos lecteurs, ce site utilise des mesures anonymisées (Google Analytics 4). Aucun traceur n'est activé sans votre accord.
+                </p>
+            </div>
+            <div class="cookie-actions">
+                <button type="button" class="cookie-btn cookie-btn-refuse" id="cookieRefuse">Refuser</button>
+                <button type="button" class="cookie-btn cookie-btn-accept" id="cookieAccept">Accepter</button>
+            </div>
+        </div>
+    </aside>
+
     <!-- Scripts with Cache Busting -->
-    <script src="book-data.js?v=3.6.0"></script>
-    <script src="app.js?v=3.6.0"></script>
+    <script src="book-data.js?v=3.7.0"></script>
+    <script src="app.js?v=3.7.0"></script>
 </body>
 </html>

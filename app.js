@@ -41,6 +41,143 @@
   }
 
   // ==========================================================================
+  // Google Analytics 4 (Mesure d'Audience SPA & Événements Littéraires)
+  // ==========================================================================
+  const Analytics = {
+    GA_ID: 'G-Z7PLKRXZNQ',
+    isLoaded: false,
+
+    init() {
+      const consent = localStorage.getItem('isaiah_cookie_consent');
+      if (consent === 'granted') {
+        this.load();
+      }
+    },
+
+    load() {
+      if (this.isLoaded || document.getElementById('ga4-script')) return;
+      this.isLoaded = true;
+
+      const script = document.createElement('script');
+      script.id = 'ga4-script';
+      script.async = true;
+      script.src = `https://www.googletagmanager.com/gtag/js?id=${this.GA_ID}`;
+      document.head.appendChild(script);
+
+      window.dataLayer = window.dataLayer || [];
+      function gtag() { window.dataLayer.push(arguments); }
+      window.gtag = gtag;
+
+      gtag('js', new Date());
+      gtag('config', this.GA_ID, {
+        anonymize_ip: true,
+        page_title: document.title,
+        page_location: window.location.href
+      });
+    },
+
+    trackEvent(eventName, params = {}) {
+      if (localStorage.getItem('isaiah_cookie_consent') !== 'granted') return;
+      if (typeof window.gtag === 'function') {
+        window.gtag('event', eventName, params);
+      }
+    },
+
+    trackWritingRead(writingId, writingTitle, bookId, category) {
+      this.trackEvent('read_writing', {
+        writing_id: writingId,
+        writing_title: writingTitle,
+        book_id: bookId,
+        category: category || 'Texte'
+      });
+    },
+
+    trackBookSelect(bookId) {
+      this.trackEvent('select_book', {
+        book_id: bookId
+      });
+    },
+
+    trackSearch(query, resultsCount) {
+      if (!query || query.trim().length < 2) return;
+      this.trackEvent('search', {
+        search_term: query.trim(),
+        results_count: resultsCount
+      });
+    },
+
+    trackThemeChange(theme) {
+      this.trackEvent('change_theme', {
+        theme_name: theme
+      });
+    },
+
+    trackFontSizeChange(size) {
+      this.trackEvent('change_font_size', {
+        font_size: size
+      });
+    },
+
+    trackToggleAll(isExpanded) {
+      this.trackEvent('toggle_all_writings', {
+        state: isExpanded ? 'expand_all' : 'collapse_all'
+      });
+    }
+  };
+
+  // ==========================================================================
+  // Gestion du Consentement Cookies (RGPD / CNIL)
+  // ==========================================================================
+  const CookieConsent = {
+    STORAGE_KEY: 'isaiah_cookie_consent',
+
+    init() {
+      const banner = document.getElementById('cookieBanner');
+      const consent = localStorage.getItem(this.STORAGE_KEY);
+
+      if (!consent && banner) {
+        banner.classList.remove('hidden');
+      } else if (consent === 'granted') {
+        Analytics.init();
+      }
+
+      const acceptBtn = document.getElementById('cookieAccept');
+      const refuseBtn = document.getElementById('cookieRefuse');
+      const openSettingsBtn = document.getElementById('openCookieSettings');
+
+      if (acceptBtn) {
+        acceptBtn.addEventListener('click', () => this.accept());
+      }
+      if (refuseBtn) {
+        refuseBtn.addEventListener('click', () => this.refuse());
+      }
+      if (openSettingsBtn) {
+        openSettingsBtn.addEventListener('click', () => this.showBanner());
+      }
+    },
+
+    showBanner() {
+      const banner = document.getElementById('cookieBanner');
+      if (banner) {
+        banner.classList.remove('hidden');
+      }
+    },
+
+    accept() {
+      localStorage.setItem(this.STORAGE_KEY, 'granted');
+      const banner = document.getElementById('cookieBanner');
+      if (banner) banner.classList.add('hidden');
+      Analytics.load();
+    },
+
+    refuse() {
+      localStorage.setItem(this.STORAGE_KEY, 'denied');
+      const banner = document.getElementById('cookieBanner');
+      if (banner) banner.classList.add('hidden');
+    }
+  };
+
+  // ==========================================================================
   // Initialisation & Rendu
   // ==========================================================================
   function init() {
@@ -49,6 +186,7 @@
     renderBookNav();
     renderBooks();
     attachEventListeners();
+    CookieConsent.init();
 
     if (DOM.currentYear) {
       DOM.currentYear.textContent = new Date().getFullYear();
@@ -309,6 +447,28 @@
   // ==========================================================================
   // Gestion du Déroulé (Ouverture / Fermeture)
   // ==========================================================================
+  function triggerWritingAnalytics(writingId) {
+    const config = getBookConfig();
+    if (!config || !config.books) return;
+
+    for (const book of config.books) {
+      let writings = [];
+      if (book.parts && Array.isArray(book.parts)) {
+        book.parts.forEach(p => {
+          if (p.writings) writings = writings.concat(p.writings);
+        });
+      } else if (book.writings) {
+        writings = book.writings;
+      }
+
+      const match = writings.find(w => w.id === writingId);
+      if (match) {
+        Analytics.trackWritingRead(match.id, match.title, book.id, match.category);
+        break;
+      }
+    }
+  }
+
   function toggleAccordion(writingId, forceState = null) {
     const accordion = document.getElementById(`accordion-${writingId}`);
     if (!accordion) return;
@@ -318,6 +478,7 @@
     if (willOpen) {
       accordion.classList.add('is-open');
       State.openWritings.add(writingId);
+      triggerWritingAnalytics(writingId);
     } else {
       accordion.classList.remove('is-open');
       State.openWritings.delete(writingId);
@@ -381,6 +542,7 @@
 
         State.activeBook = tab.dataset.book;
         renderBooks();
+        Analytics.trackBookSelect(State.activeBook);
 
         // Si un livre spécifique est choisi, faire défiler doucement vers le haut de la section
         if (State.activeBook !== 'all') {
@@ -397,6 +559,7 @@
       DOM.themeToggle.addEventListener('click', () => {
         const nextTheme = State.theme === 'light' ? 'dark' : 'light';
         applyTheme(nextTheme);
+        Analytics.trackThemeChange(nextTheme);
       });
     }
 
@@ -405,6 +568,7 @@
       DOM.fontDecrease.addEventListener('click', () => {
         if (State.fontSize === 'large') applyFontSize('medium');
         else if (State.fontSize === 'medium') applyFontSize('small');
+        Analytics.trackFontSizeChange(State.fontSize);
       });
     }
 
@@ -412,6 +576,7 @@
       DOM.fontIncrease.addEventListener('click', () => {
         if (State.fontSize === 'small') applyFontSize('medium');
         else if (State.fontSize === 'medium') applyFontSize('large');
+        Analytics.trackFontSizeChange(State.fontSize);
       });
     }
 
@@ -430,6 +595,7 @@
         if (tooltip) {
           tooltip.textContent = State.allExpanded ? 'Tout replier' : 'Tout déplier';
         }
+        Analytics.trackToggleAll(State.allExpanded);
       });
     }
 
@@ -457,7 +623,8 @@
         debounceTimer = setTimeout(() => {
           State.searchQuery = e.target.value;
           renderBooks();
-        }, 180);
+          Analytics.trackSearch(State.searchQuery, document.querySelectorAll('.text-accordion').length);
+        }, 250);
       });
     }
   }
